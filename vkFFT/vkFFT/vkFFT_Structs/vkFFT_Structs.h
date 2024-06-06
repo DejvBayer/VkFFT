@@ -132,11 +132,11 @@ typedef struct {
 	//data parameters:
 	pfUINT userTempBuffer; //buffer allocated by app automatically if needed to reorder Four step algorithm. Setting to non zero value enables manual user allocation (0 - off, 1 - on)
 
-	pfUINT bufferNum;//multiple buffer sequence storage is Vulkan only. Default 1
-	pfUINT tempBufferNum;//multiple buffer sequence storage is Vulkan only. Default 1, buffer allocated by app automatically if needed to reorder Four step algorithm. Setting to non zero value enables manual user allocation
-	pfUINT inputBufferNum;//multiple buffer sequence storage is Vulkan only. Default 1, if isInputFormatted is enabled
-	pfUINT outputBufferNum;//multiple buffer sequence storage is Vulkan only. Default 1, if isOutputFormatted is enabled
-	pfUINT kernelNum;//multiple buffer sequence storage is Vulkan only. Default 1, if performConvolution is enabled
+	pfUINT bufferNum;//Specify how many buffers are passed in buffer pointer. Default 1
+	pfUINT tempBufferNum;//Specify how many buffers are passed in tempBuffer pointer. Default 1, tempBuffer allocated by app automatically if needed to reorder Four step algorithm. Setting to non zero value enables manual user allocation
+	pfUINT inputBufferNum;//Specify how many buffers are passed in inputBuffer pointer. Default 1, if isInputFormatted is enabled
+	pfUINT outputBufferNum;//Specify how many buffers are passed in outputBuffer pointer. Default 1, if isOutputFormatted is enabled
+	pfUINT kernelNum;//Specify how many buffers are passed in kernel pointer. Default 1, if performConvolution is enabled
 
 	//sizes are obligatory in Vulkan backend, optional in others
 	pfUINT* bufferSize;//array of buffers sizes in bytes
@@ -152,43 +152,56 @@ typedef struct {
 	VkBuffer* outputBuffer;//pointer to array of output buffers (or one buffer) used for write data to if isOutputFormatted is enabled
 	VkBuffer* kernel;//pointer to array of kernel buffers (or one buffer) used for read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==1)
-	void** buffer;//pointer to device buffer used for computations
-	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void** buffer;//pointer to array of buffers (or one buffer) used for computations
+	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Needs to be at least the same size as buffer. Default 0. Setting to non zero value enables manual user allocation
+	void** inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
+	void** outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
+	void** kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==2)
-	void** buffer;//pointer to device buffer used for computations
-	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void** buffer;//pointer to array of buffers (or one buffer) used for computations
+	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Needs to be at least the same size as buffer. Default 0. Setting to non zero value enables manual user allocation
+	void** inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
+	void** outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
+	void** kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==3)
-	cl_mem* buffer;//pointer to device buffer used for computations
-	cl_mem* tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	cl_mem* inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	cl_mem* outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	cl_mem* kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	cl_mem* buffer;//pointer to array of buffers (or one buffer) used for computations
+	cl_mem* tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Needs to be at least the same size as buffer. Default 0. Setting to non zero value enables manual user allocation
+	cl_mem* inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
+	cl_mem* outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
+	cl_mem* kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==4)
-	void** buffer;//pointer to device buffer used for computations
-	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void** buffer;//pointer to array of buffers (or one buffer) used for computations
+	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Needs to be at least the same size as buffer. Default 0. Setting to non zero value enables manual user allocation
+	void** inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
+	void** outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
+	void** kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==5)
-	MTL::Buffer** buffer;//pointer to device buffer used for computations
-	MTL::Buffer** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	MTL::Buffer** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	MTL::Buffer** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	MTL::Buffer** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	MTL::Buffer** buffer;//pointer to array of buffers (or one buffer) used for computations
+	MTL::Buffer** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Needs to be at least the same size as buffer. Default 0. Setting to non zero value enables manual user allocation
+	MTL::Buffer** inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
+	MTL::Buffer** outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
+	MTL::Buffer** kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
 #endif
+	pfUINT specifyOffsetsAtLaunch;//specify if offsets will be selected with launch parameters VkFFTLaunchParams (0 - off, 1 - on). Default 0
+
 	pfUINT bufferOffset;//specify if VkFFT has to offset the first element position inside the buffer. In bytes. Default 0 
 	pfUINT tempBufferOffset;//specify if VkFFT has to offset the first element position inside the temp buffer. In bytes. Default 0 
 	pfUINT inputBufferOffset;//specify if VkFFT has to offset the first element position inside the input buffer. In bytes. Default 0 
 	pfUINT outputBufferOffset;//specify if VkFFT has to offset the first element position inside the output buffer. In bytes. Default 0
 	pfUINT kernelOffset;//specify if VkFFT has to offset the first element position inside the kernel. In bytes. Default 0
-	pfUINT specifyOffsetsAtLaunch;//specify if offsets will be selected with launch parameters VkFFTLaunchParams (0 - off, 1 - on). Default 0
-
+	
+	pfUINT bufferSeparateComplexComponents; //specify if VkFFT has to manage buffer complex numbers as two buffers R and I, provided as (void*)[2] (0 - off, 1 - on)
+	pfUINT tempBufferSeparateComplexComponents; //specify if VkFFT has to manage tempBuffer complex numbers as two buffers R and I, provided as (void*)[2] (0 - off, 1 - on)
+	pfUINT inputBufferSeparateComplexComponents; //specify if VkFFT has to manage inputBuffer complex numbers as two buffers R and I, provided as (void*)[2] (0 - off, 1 - on)	
+	pfUINT outputBufferSeparateComplexComponents; //specify if VkFFT has to manage outputBuffer complex numbers as two buffers R and I, provided as (void*)[2] (0 - off, 1 - on)	
+	pfUINT kernelSeparateComplexComponents; //specify if VkFFT has to manage kernel complex numbers as two buffers R and I, provided as (void*)[2] (0 - off, 1 - on)
+	//in SeparateComplexComponents mode, regular Offset (like bufferOffset) parameters specify offset of the real buffer, parameters below are used for offsets of the imaginary buffer
+	pfUINT bufferOffsetImaginary;//specify if VkFFT has to offset the first element position inside the imaginary buffer. In bytes. Default 0 
+	pfUINT tempBufferOffsetImaginary;//specify if VkFFT has to offset the first element position inside the imaginary temp buffer. In bytes. Default 0 
+	pfUINT inputBufferOffsetImaginary;//specify if VkFFT has to offset the first element position inside the imaginary input buffer. In bytes. Default 0 
+	pfUINT outputBufferOffsetImaginary;//specify if VkFFT has to offset the first element position inside the imaginary output buffer. In bytes. Default 0
+	pfUINT kernelOffsetImaginary;//specify if VkFFT has to offset the first element position inside the imaginary kernel. In bytes. Default 0
+	
 	//optional: (default 0 if not stated otherwise)
 #if(VKFFT_BACKEND==0)
 	VkPipelineCache* pipelineCache;//pointer to Vulkan pipeline cache
@@ -202,7 +215,7 @@ typedef struct {
 	pfUINT numberBatches;// N - used to perform multiple batches of initial data. Default 1
 	pfUINT useUint64;// use 64-bit addressing mode in generated kernels
 	pfUINT omitDimension[VKFFT_MAX_FFT_DIMENSIONS];//disable FFT for this dimension (0 - FFT enabled, 1 - FFT disabled). Default 0. Doesn't work for R2C dimension 0 for now. Doesn't work with convolutions.
-	int performBandwidthBoost;//try to reduce coalsesced number by a factor of X to get bigger sequence in one upload for strided axes. Default: -1 for DCT, 2 for Bluestein's algorithm (or -1 if DCT), 0 otherwise 
+	int performBandwidthBoost;//try to reduce coalsesced number by a factor of X to get bigger sequence in one upload for strided axes. Default: 2 for DCT, 2 for Bluestein's algorithm, 0 otherwise 
 	pfUINT groupedBatch[VKFFT_MAX_FFT_DIMENSIONS];// try to force this many FFTs to be perfromed by one threadblock for each dimension
 
 	pfUINT doublePrecision; //perform calculations in double precision (0 - off, 1 - on).
@@ -380,6 +393,13 @@ typedef struct {
 	pfUINT inputBufferOffset;//specify if VkFFT has to offset the first element position inside the input buffer. In bytes. Default 0 
 	pfUINT outputBufferOffset;//specify if VkFFT has to offset the first element position inside the output buffer. In bytes. Default 0
 	pfUINT kernelOffset;//specify if VkFFT has to offset the first element position inside the kernel. In bytes. Default 0
+
+	//if SeparateComplexComponents parameter has been enabled for the respective buffer, user may specify the offset for the imaginary buffer (passed as second buffer in array of buffers).
+	pfUINT bufferOffsetImaginary;//specify if VkFFT has to offset the first element position inside the buffer. In bytes. Default 0 
+	pfUINT tempBufferOffsetImaginary;//specify if VkFFT has to offset the first element position inside the temp buffer. In bytes. Default 0 
+	pfUINT inputBufferOffsetImaginary;//specify if VkFFT has to offset the first element position inside the input buffer. In bytes. Default 0 
+	pfUINT outputBufferOffsetImaginary;//specify if VkFFT has to offset the first element position inside the output buffer. In bytes. Default 0
+	pfUINT kernelOffsetImaginary;//specify if VkFFT has to offset the first element position inside the kernel. In bytes. Default 0
 } VkFFTLaunchParams;//parameters specified at plan execution
 typedef enum VkFFTResult {
 	VKFFT_SUCCESS = 0,
@@ -778,6 +798,9 @@ typedef struct {
 	PfContainer fft_zeropad_Bluestein_right_write[VKFFT_MAX_FFT_DIMENSIONS];
 	PfContainer inputStride[VKFFT_MAX_FFT_DIMENSIONS+2];
 	PfContainer outputStride[VKFFT_MAX_FFT_DIMENSIONS+2];
+	pfUINT inputBufferNum;
+	pfUINT outputBufferNum;
+	pfUINT kernelNum;
 	PfContainer fft_dim_full;
 	PfContainer stageStartSize;
 	PfContainer firstStageStartSize;
@@ -788,6 +811,13 @@ typedef struct {
 	PfContainer inputOffset;
 	PfContainer kernelOffset;
 	PfContainer outputOffset;
+	PfContainer inputOffsetImaginary;
+	PfContainer kernelOffsetImaginary;
+	PfContainer outputOffsetImaginary;
+	int inputBufferSeparateComplexComponents;
+	int outputBufferSeparateComplexComponents;
+	int kernelSeparateComplexComponents;
+
 	int reorderFourStep;
 	int storeSharedComplexComponentsSeparately;
 	int pushConstantsStructSize;
@@ -1029,12 +1059,15 @@ typedef struct {
 
 	pfUINT performPostCompilationInputOffset;
 	pfUINT inputOffset;
+	pfUINT inputOffsetImaginary;
 
 	pfUINT performPostCompilationOutputOffset;
 	pfUINT outputOffset;
+	pfUINT outputOffsetImaginary;
 
 	pfUINT performPostCompilationKernelOffset;
 	pfUINT kernelOffset;
+	pfUINT kernelOffsetImaginary;
 
 	pfUINT structSize;
 } VkFFTPushConstantsLayout;
@@ -1050,6 +1083,7 @@ typedef struct {
 #if(VKFFT_BACKEND==0)
 	VkBuffer* inputBuffer;
 	VkBuffer* outputBuffer;
+	VkBuffer* kernel;
 	VkDescriptorPool descriptorPool;
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkDescriptorSet descriptorSet;
@@ -1066,6 +1100,7 @@ typedef struct {
 #elif(VKFFT_BACKEND==1)
 	void** inputBuffer;
 	void** outputBuffer;
+	void** kernel;
 	CUmodule VkFFTModule;
 	CUfunction VkFFTKernel;
 	void* bufferLUT;
@@ -1076,6 +1111,7 @@ typedef struct {
 #elif(VKFFT_BACKEND==2)
 	void** inputBuffer;
 	void** outputBuffer;
+	void** kernel;
 	hipModule_t VkFFTModule;
 	hipFunction_t VkFFTKernel;
 	void* bufferLUT;
@@ -1086,8 +1122,9 @@ typedef struct {
 #elif(VKFFT_BACKEND==3)
 	cl_mem* inputBuffer;
 	cl_mem* outputBuffer;
-	cl_program  program;
-	cl_kernel kernel;
+	cl_mem* kernel;
+	cl_program  VkFFTProgram;
+	cl_kernel VkFFTKernel;
 	cl_mem bufferLUT;
 	cl_mem bufferRaderUintLUT;
 	cl_mem* bufferBluestein;
@@ -1095,6 +1132,7 @@ typedef struct {
 #elif(VKFFT_BACKEND==4)
 	void** inputBuffer;
 	void** outputBuffer;
+	void** kernel;
 	ze_module_handle_t VkFFTModule;
 	ze_kernel_handle_t VkFFTKernel;
 	void* bufferLUT;
@@ -1104,6 +1142,7 @@ typedef struct {
 #elif(VKFFT_BACKEND==5)
 	MTL::Buffer** inputBuffer;
 	MTL::Buffer** outputBuffer;
+	MTL::Buffer** kernel;
 	MTL::Library* library;
 	MTL::ComputePipelineState* pipeline;
 	MTL::Buffer* bufferLUT;

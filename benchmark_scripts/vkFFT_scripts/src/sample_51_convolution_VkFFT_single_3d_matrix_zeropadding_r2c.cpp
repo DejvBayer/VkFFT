@@ -250,11 +250,11 @@ VkFFTResult sample_51_convolution_VkFFT_single_3d_matrix_zeropadding_r2c(VkGPU* 
 	void* buffer = 0;
 	res = zeMemAllocDevice(vkGPU->context, &device_desc, bufferSize, sizeof(float), vkGPU->device, &buffer);
 	if (res != ZE_RESULT_SUCCESS) return VKFFT_ERROR_FAILED_TO_ALLOCATE;
-	configuration.buffer = &buffer;
+	convolution_configuration.buffer = &buffer;
 #elif(VKFFT_BACKEND==5)
 	MTL::Buffer* buffer = 0;
 	buffer = vkGPU->device->newBuffer(bufferSize, MTL::ResourceStorageModePrivate);
-	configuration.buffer = &buffer;
+	convolution_configuration.buffer = &buffer;
 #endif
 
 	convolution_configuration.bufferSize = &bufferSize;

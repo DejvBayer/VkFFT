@@ -294,6 +294,49 @@ static inline void PfGetTypeFromCode(VkFFTSpecializationConstantsLayout* sc, int
 	sc->res = VKFFT_ERROR_MATH_FAILED;
 	return;
 }
+static inline int PfSizeTypeFromCode(VkFFTSpecializationConstantsLayout* sc, int code) {
+	if (sc->res != VKFFT_SUCCESS) return 0;
+	switch (code % 10) {
+	case 1:
+		switch ((code % 100) / 10) {
+		case 0:
+			return 4;
+		case 1:
+			return 4;
+		case 2:
+			return 8;
+		case 3:
+			return 8;
+		}
+		break;
+	case 2:
+		switch ((code % 100) / 10) {
+		case 0:
+			return 2;
+		case 1:
+			return 4;
+		case 2:
+			return 8;
+		case 3:
+			return 16;
+		}
+		break;
+	case 3:
+		switch ((code % 100) / 10) {
+		case 0:
+			return 4;
+		case 1:
+			return 8;
+		case 2:
+			return 16;
+		case 3:
+			return 32;
+		}
+		break;
+	}
+	sc->res = VKFFT_ERROR_MATH_FAILED;
+	return 0;
+}
 static inline void PfAppendNumberLiteral(VkFFTSpecializationConstantsLayout* sc, PfContainer* number) {
 	if (sc->res != VKFFT_SUCCESS) return;
 	if (((number->type % 10) == 2) || ((number->type % 10) == 3)) {

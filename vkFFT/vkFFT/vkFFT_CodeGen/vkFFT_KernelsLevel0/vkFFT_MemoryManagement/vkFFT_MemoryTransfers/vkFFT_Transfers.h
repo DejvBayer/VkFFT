@@ -200,6 +200,136 @@ static inline void appendConstantToRegisters_y(VkFFTSpecializationConstantsLayou
 static inline void appendGlobalToRegisters(VkFFTSpecializationConstantsLayout* sc, PfContainer* out, PfContainer* bufferName, PfContainer* inoutID)
 {
 	if (sc->res != VKFFT_SUCCESS) return;
+	if (((!(strcmp(bufferName->name, sc->inputsStruct.name))) && (sc->inputBufferSeparateComplexComponents)) ||
+	 ((!(strcmp(bufferName->name, sc->outputsStruct.name))) && (sc->outputBufferSeparateComplexComponents)) ||
+	 ((!(strcmp(bufferName->name, sc->kernelStruct.name))) && (sc->kernelSeparateComplexComponents))) {
+		PfContainer temp_int = VKFFT_ZERO_INIT;
+		temp_int.type = 31;
+		out->type -= 1;
+		bufferName->type -= 1;
+		sc->tempLen = sprintf(sc->tempStr, "%s.x", out->name);
+		PfAppendLine(sc);
+		sc->tempLen = sprintf(sc->tempStr, " = ");
+		PfAppendLine(sc);
+		PfAppendConversionStart(sc, out, bufferName);
+#if(VKFFT_BACKEND==0)
+		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[0].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
+#else
+		sc->tempLen = sprintf(sc->tempStr, "%s[%s + ", bufferName->name, inoutID->name);
+#endif
+		PfAppendLine(sc);
+		if (!(strcmp(bufferName->name, sc->inputsStruct.name))) {
+			if (sc->inputOffset.type < 100) {
+				temp_int.data.i = sc->inputOffset.data.i / (sc->inputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->inputOffset.type == 101) {
+					if (sc->performPostCompilationInputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->inputOffset.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->outputsStruct.name))) {
+			if (sc->outputOffset.type < 100) {
+				temp_int.data.i = sc->outputOffset.data.i / (sc->outputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->outputOffset.type == 101) {
+					if (sc->performPostCompilationOutputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->outputOffset.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->kernelStruct.name))) {
+			if (sc->kernelOffset.type < 100) {
+				temp_int.data.i = sc->kernelOffset.data.i / (sc->kernelNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->kernelOffset.type == 101) {
+					if (sc->performPostCompilationKernelOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->kernelOffset.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		PfAppendConversionEnd(sc, out, bufferName);
+		sc->tempLen = sprintf(sc->tempStr, ";\n");
+		PfAppendLine(sc);
+
+		sc->tempLen = sprintf(sc->tempStr, "%s.y", out->name);
+		PfAppendLine(sc);
+		sc->tempLen = sprintf(sc->tempStr, " = ");
+		PfAppendLine(sc);
+		PfAppendConversionStart(sc, out, bufferName);
+#if(VKFFT_BACKEND==0)
+		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[1].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
+#else
+		sc->tempLen = sprintf(sc->tempStr, "%s_imag[%s + ", bufferName->name, inoutID->name);
+#endif
+		PfAppendLine(sc);
+		if (!(strcmp(bufferName->name, sc->inputsStruct.name))) {
+			if (sc->inputOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->inputOffsetImaginary.data.i / (sc->inputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->inputOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationInputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->inputOffsetImaginary.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->outputsStruct.name))) {
+			if (sc->outputOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->outputOffsetImaginary.data.i / (sc->outputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->outputOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationOutputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->outputOffsetImaginary.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->kernelStruct.name))) {
+			if (sc->kernelOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->kernelOffsetImaginary.data.i / (sc->kernelNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->kernelOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationKernelOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->kernelOffsetImaginary.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		PfAppendConversionEnd(sc, out, bufferName);
+		sc->tempLen = sprintf(sc->tempStr, ";\n");
+		PfAppendLine(sc);
+		out->type += 1;
+		bufferName->type += 1;
+		return;
+	}
 	sc->tempLen = sprintf(sc->tempStr, "%s", out->name);
 	PfAppendLine(sc);
 	sc->tempLen = sprintf(sc->tempStr, " = ");
@@ -283,6 +413,136 @@ static inline void appendGlobalToRegisters_y(VkFFTSpecializationConstantsLayout*
 static inline void appendRegistersToGlobal(VkFFTSpecializationConstantsLayout* sc, PfContainer* bufferName, PfContainer* inoutID, PfContainer* in)
 {
 	if (sc->res != VKFFT_SUCCESS) return;
+	if (((!(strcmp(bufferName->name, sc->inputsStruct.name))) && (sc->inputBufferSeparateComplexComponents)) ||
+	 ((!(strcmp(bufferName->name, sc->outputsStruct.name))) && (sc->outputBufferSeparateComplexComponents)) ||
+	 ((!(strcmp(bufferName->name, sc->kernelStruct.name))) && (sc->kernelSeparateComplexComponents))) {
+		PfContainer temp_int = VKFFT_ZERO_INIT;
+		temp_int.type = 31;
+		in->type -= 1;
+		bufferName->type -= 1;
+#if(VKFFT_BACKEND==0)
+		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[0].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
+#else
+		sc->tempLen = sprintf(sc->tempStr, "%s[%s + ", bufferName->name, inoutID->name);
+#endif
+		PfAppendLine(sc);
+		if (!(strcmp(bufferName->name, sc->inputsStruct.name))) {
+			if (sc->inputOffset.type < 100) {
+				temp_int.data.i = sc->inputOffset.data.i / (sc->inputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->inputOffset.type == 101) {
+					if (sc->performPostCompilationInputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->inputOffset.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->outputsStruct.name))) {
+			if (sc->outputOffset.type < 100) {
+				temp_int.data.i = sc->outputOffset.data.i / (sc->outputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->outputOffset.type == 101) {
+					if (sc->performPostCompilationOutputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->outputOffset.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->kernelStruct.name))) {
+			if (sc->kernelOffset.type < 100) {
+				temp_int.data.i = sc->kernelOffset.data.i / (sc->kernelNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->kernelOffset.type == 101) {
+					if (sc->performPostCompilationKernelOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->kernelOffset.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		sc->tempLen = sprintf(sc->tempStr, " = ");
+		PfAppendLine(sc);
+		PfAppendConversionStart(sc, bufferName, in);
+		sc->tempLen = sprintf(sc->tempStr, "%s.x", in->name);
+		PfAppendLine(sc);
+		PfAppendConversionEnd(sc, bufferName, in);
+		sc->tempLen = sprintf(sc->tempStr, ";\n");
+		PfAppendLine(sc);
+
+#if(VKFFT_BACKEND==0)
+		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[1].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
+#else
+		sc->tempLen = sprintf(sc->tempStr, "%s_imag[%s + ", bufferName->name, inoutID->name);
+#endif
+		PfAppendLine(sc);
+		if (!(strcmp(bufferName->name, sc->inputsStruct.name))) {
+			if (sc->inputOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->inputOffsetImaginary.data.i / (sc->inputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->inputOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationInputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->inputOffsetImaginary.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->outputsStruct.name))) {
+			if (sc->outputOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->outputOffsetImaginary.data.i / (sc->outputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->outputOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationOutputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->outputOffsetImaginary.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->kernelStruct.name))) {
+			if (sc->kernelOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->kernelOffsetImaginary.data.i / (sc->kernelNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->kernelOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationKernelOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->kernelOffsetImaginary.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		sc->tempLen = sprintf(sc->tempStr, " = ");
+		PfAppendLine(sc);
+		PfAppendConversionStart(sc, bufferName, in);
+		sc->tempLen = sprintf(sc->tempStr, "%s.y", in->name);
+		PfAppendLine(sc);
+		PfAppendConversionEnd(sc, bufferName, in);
+		sc->tempLen = sprintf(sc->tempStr, ";\n");
+		PfAppendLine(sc);
+		in->type += 1;
+		bufferName->type += 1;
+		return;
+	}
 	int dataSize = ((in->type % 10) == 3) ? sc->complexSize : sc->complexSize / 2;
 	if ((!(strcmp(bufferName->name, sc->inputsStruct.name))) && (sc->inputBufferBlockNum != 1)) {
 		sc->tempLen = sprintf(sc->tempStr, "inputBlocks[%s / %" PRIu64 "].%s[%s %% %" PRIu64 "]", inoutID->name, sc->inputBufferBlockSize / dataSize, bufferName->name, inoutID->name, sc->inputBufferBlockSize / dataSize);
@@ -363,6 +623,150 @@ static inline void appendRegistersToGlobal_y(VkFFTSpecializationConstantsLayout*
 static inline void appendGlobalToShared(VkFFTSpecializationConstantsLayout* sc, PfContainer* sdataID, PfContainer* bufferName, PfContainer* inoutID)
 {
 	if (sc->res != VKFFT_SUCCESS) return;
+	if (((!(strcmp(bufferName->name, sc->inputsStruct.name))) && (sc->inputBufferSeparateComplexComponents)) ||
+	 ((!(strcmp(bufferName->name, sc->outputsStruct.name))) && (sc->outputBufferSeparateComplexComponents)) ||
+	 ((!(strcmp(bufferName->name, sc->kernelStruct.name))) && (sc->kernelSeparateComplexComponents))) {
+		PfContainer temp_int = VKFFT_ZERO_INIT;
+		temp_int.type = 31;
+		sc->sdataStruct.type -= 1;
+		bufferName->type -= 1;
+		if (sc->storeSharedComplexComponentsSeparately){
+			sc->tempLen = sprintf(sc->tempStr, "%s.x", sc->temp.name);
+			PfAppendLine(sc);
+		}else{
+			sc->tempLen = sprintf(sc->tempStr, "sdata[%s].x", sdataID->name);
+			PfAppendLine(sc);
+		}
+		sc->tempLen = sprintf(sc->tempStr, " = ");
+		PfAppendLine(sc);
+		PfAppendConversionStart(sc, &sc->sdataStruct, bufferName);
+#if(VKFFT_BACKEND==0)
+		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[0].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
+#else
+		sc->tempLen = sprintf(sc->tempStr, "%s[%s + ", bufferName->name, inoutID->name);
+#endif
+		PfAppendLine(sc);
+		if (!(strcmp(bufferName->name, sc->inputsStruct.name))) {
+			if (sc->inputOffset.type < 100) {
+				temp_int.data.i = sc->inputOffset.data.i / (sc->inputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->inputOffset.type == 101) {
+					if (sc->performPostCompilationInputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->inputOffset.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->outputsStruct.name))) {
+			if (sc->outputOffset.type < 100) {
+				temp_int.data.i = sc->outputOffset.data.i / (sc->outputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->outputOffset.type == 101) {
+					if (sc->performPostCompilationOutputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->outputOffset.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->kernelStruct.name))) {
+			if (sc->kernelOffset.type < 100) {
+				temp_int.data.i = sc->kernelOffset.data.i / (sc->kernelNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->kernelOffset.type == 101) {
+					if (sc->performPostCompilationKernelOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->kernelOffset.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		PfAppendConversionEnd(sc, &sc->sdataStruct, bufferName);
+		sc->tempLen = sprintf(sc->tempStr, ";\n");
+		PfAppendLine(sc);
+
+		if (sc->storeSharedComplexComponentsSeparately){
+			sc->tempLen = sprintf(sc->tempStr, "%s.y", sc->temp.name);
+			PfAppendLine(sc);
+		}else{
+			sc->tempLen = sprintf(sc->tempStr, "sdata[%s].y", sdataID->name);
+			PfAppendLine(sc);
+		}
+		sc->tempLen = sprintf(sc->tempStr, " = ");
+		PfAppendLine(sc);
+		PfAppendConversionStart(sc, &sc->sdataStruct, bufferName);
+#if(VKFFT_BACKEND==0)
+		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[1].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
+#else
+		sc->tempLen = sprintf(sc->tempStr, "%s_imag[%s + ", bufferName->name, inoutID->name);
+#endif
+		PfAppendLine(sc);
+		if (!(strcmp(bufferName->name, sc->inputsStruct.name))) {
+			if (sc->inputOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->inputOffsetImaginary.data.i / (sc->inputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->inputOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationInputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->inputOffsetImaginary.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->outputsStruct.name))) {
+			if (sc->outputOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->outputOffsetImaginary.data.i / (sc->outputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->outputOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationOutputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->outputOffsetImaginary.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->kernelStruct.name))) {
+			if (sc->kernelOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->kernelOffsetImaginary.data.i / (sc->kernelNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->kernelOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationKernelOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->kernelOffsetImaginary.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		PfAppendConversionEnd(sc, &sc->sdataStruct, bufferName);
+		sc->tempLen = sprintf(sc->tempStr, ";\n");
+		PfAppendLine(sc);
+		sc->sdataStruct.type += 1;
+		bufferName->type += 1;
+		if (sc->storeSharedComplexComponentsSeparately){
+			appendRegistersToShared(sc, sdataID, &sc->temp);
+		}
+		return;
+	}
+	
 	if (sc->storeSharedComplexComponentsSeparately){
 		sc->tempLen = sprintf(sc->tempStr, "%s", sc->temp.name);
 		PfAppendLine(sc);
@@ -398,6 +802,148 @@ static inline void appendGlobalToShared(VkFFTSpecializationConstantsLayout* sc, 
 static inline void appendSharedToGlobal(VkFFTSpecializationConstantsLayout* sc, PfContainer* bufferName, PfContainer* inoutID, PfContainer* sdataID)
 {
 	if (sc->res != VKFFT_SUCCESS) return;
+	if (((!(strcmp(bufferName->name, sc->inputsStruct.name))) && (sc->inputBufferSeparateComplexComponents)) ||
+	 ((!(strcmp(bufferName->name, sc->outputsStruct.name))) && (sc->outputBufferSeparateComplexComponents)) ||
+	 ((!(strcmp(bufferName->name, sc->kernelStruct.name))) && (sc->kernelSeparateComplexComponents))) {
+		PfContainer temp_int = VKFFT_ZERO_INIT;
+		temp_int.type = 31;
+		if (sc->storeSharedComplexComponentsSeparately){
+			appendSharedToRegisters(sc, &sc->temp, sdataID);
+		}
+		sc->sdataStruct.type -= 1;
+		bufferName->type -= 1;
+#if(VKFFT_BACKEND==0)
+		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[0].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
+#else
+		sc->tempLen = sprintf(sc->tempStr, "%s[%s + ", bufferName->name, inoutID->name);
+#endif
+		PfAppendLine(sc);
+		if (!(strcmp(bufferName->name, sc->inputsStruct.name))) {
+			if (sc->inputOffset.type < 100) {
+				temp_int.data.i = sc->inputOffset.data.i / (sc->inputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->inputOffset.type == 101) {
+					if (sc->performPostCompilationInputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->inputOffset.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->outputsStruct.name))) {
+			if (sc->outputOffset.type < 100) {
+				temp_int.data.i = sc->outputOffset.data.i / (sc->outputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->outputOffset.type == 101) {
+					if (sc->performPostCompilationOutputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->outputOffset.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->kernelStruct.name))) {
+			if (sc->kernelOffset.type < 100) {
+				temp_int.data.i = sc->kernelOffset.data.i / (sc->kernelNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->kernelOffset.type == 101) {
+					if (sc->performPostCompilationKernelOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->kernelOffset.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		sc->tempLen = sprintf(sc->tempStr, " = ");
+		PfAppendLine(sc);
+		PfAppendConversionStart(sc, bufferName, &sc->sdataStruct);
+		if (sc->storeSharedComplexComponentsSeparately){
+			sc->tempLen = sprintf(sc->tempStr, "%s.x", sc->temp.name);
+			PfAppendLine(sc);
+		}else{
+			sc->tempLen = sprintf(sc->tempStr, "sdata[%s].x", sdataID->name);
+			PfAppendLine(sc);
+		}
+		PfAppendConversionEnd(sc, bufferName, &sc->sdataStruct);
+		sc->tempLen = sprintf(sc->tempStr, ";\n");
+		PfAppendLine(sc);
+#if(VKFFT_BACKEND==0)
+		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[1].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
+#else
+		sc->tempLen = sprintf(sc->tempStr, "%s_imag[%s + ", bufferName->name, inoutID->name);
+#endif
+		PfAppendLine(sc);
+		if (!(strcmp(bufferName->name, sc->inputsStruct.name))) {
+			if (sc->inputOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->inputOffsetImaginary.data.i / (sc->inputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->inputOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationInputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->inputOffsetImaginary.name);
+						PfAppendLine(sc);	
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->outputsStruct.name))) {
+			if (sc->outputOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->outputOffsetImaginary.data.i / (sc->outputNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->outputOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationOutputOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->outputOffsetImaginary.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		else if (!(strcmp(bufferName->name, sc->kernelStruct.name))) {
+			if (sc->kernelOffsetImaginary.type < 100) {
+				temp_int.data.i = sc->kernelOffsetImaginary.data.i / (sc->kernelNumberByteSize/2);
+				sc->tempLen = sprintf(sc->tempStr, "%" PRIi64 "]", temp_int.data.i);
+				PfAppendLine(sc);
+			}
+			else {
+				if (sc->kernelOffsetImaginary.type == 101) {
+					if (sc->performPostCompilationKernelOffset) {
+						sc->tempLen = sprintf(sc->tempStr, "%s]", sc->kernelOffsetImaginary.name);
+						PfAppendLine(sc);
+					}
+				}
+			}
+		}
+		sc->tempLen = sprintf(sc->tempStr, " = ");
+		PfAppendLine(sc);
+		PfAppendConversionStart(sc, bufferName, &sc->sdataStruct);
+		if (sc->storeSharedComplexComponentsSeparately){
+			sc->tempLen = sprintf(sc->tempStr, "%s.y", sc->temp.name);
+			PfAppendLine(sc);
+		}else{
+			sc->tempLen = sprintf(sc->tempStr, "sdata[%s].y", sdataID->name);
+			PfAppendLine(sc);
+		}
+		PfAppendConversionEnd(sc, bufferName, &sc->sdataStruct);
+		sc->tempLen = sprintf(sc->tempStr, ";\n");
+		PfAppendLine(sc);
+		sc->sdataStruct.type += 1;
+		bufferName->type += 1;
+		return;
+	}
 	if (sc->storeSharedComplexComponentsSeparately){
 		appendSharedToRegisters(sc, &sc->temp, sdataID);
 	}

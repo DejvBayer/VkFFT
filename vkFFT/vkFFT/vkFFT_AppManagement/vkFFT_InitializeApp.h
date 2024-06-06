@@ -1168,13 +1168,26 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		}
 		app->configuration.kernel = inputLaunchConfiguration.kernel;
 	}
-
+	if (inputLaunchConfiguration.specifyOffsetsAtLaunch != 0)	app->configuration.specifyOffsetsAtLaunch = inputLaunchConfiguration.specifyOffsetsAtLaunch;
+	
 	if (inputLaunchConfiguration.bufferOffset != 0)	app->configuration.bufferOffset = inputLaunchConfiguration.bufferOffset;
 	if (inputLaunchConfiguration.tempBufferOffset != 0)	app->configuration.tempBufferOffset = inputLaunchConfiguration.tempBufferOffset;
 	if (inputLaunchConfiguration.inputBufferOffset != 0)	app->configuration.inputBufferOffset = inputLaunchConfiguration.inputBufferOffset;
 	if (inputLaunchConfiguration.outputBufferOffset != 0)	app->configuration.outputBufferOffset = inputLaunchConfiguration.outputBufferOffset;
 	if (inputLaunchConfiguration.kernelOffset != 0)	app->configuration.kernelOffset = inputLaunchConfiguration.kernelOffset;
-	if (inputLaunchConfiguration.specifyOffsetsAtLaunch != 0)	app->configuration.specifyOffsetsAtLaunch = inputLaunchConfiguration.specifyOffsetsAtLaunch;
+
+	if (inputLaunchConfiguration.bufferSeparateComplexComponents != 0)	app->configuration.bufferSeparateComplexComponents = inputLaunchConfiguration.bufferSeparateComplexComponents;
+	if (inputLaunchConfiguration.tempBufferSeparateComplexComponents != 0)	app->configuration.tempBufferSeparateComplexComponents = inputLaunchConfiguration.tempBufferSeparateComplexComponents;
+	if (inputLaunchConfiguration.inputBufferSeparateComplexComponents != 0)	app->configuration.inputBufferSeparateComplexComponents = inputLaunchConfiguration.inputBufferSeparateComplexComponents;
+	if (inputLaunchConfiguration.outputBufferSeparateComplexComponents != 0)	app->configuration.outputBufferSeparateComplexComponents = inputLaunchConfiguration.outputBufferSeparateComplexComponents;
+	if (inputLaunchConfiguration.kernelSeparateComplexComponents != 0)	app->configuration.kernelSeparateComplexComponents = inputLaunchConfiguration.kernelSeparateComplexComponents;
+
+	if (inputLaunchConfiguration.bufferOffsetImaginary != 0)	app->configuration.bufferOffsetImaginary = inputLaunchConfiguration.bufferOffsetImaginary;
+	if (inputLaunchConfiguration.tempBufferOffsetImaginary != 0)	app->configuration.tempBufferOffsetImaginary = inputLaunchConfiguration.tempBufferOffsetImaginary;
+	if (inputLaunchConfiguration.inputBufferOffsetImaginary != 0)	app->configuration.inputBufferOffsetImaginary = inputLaunchConfiguration.inputBufferOffsetImaginary;
+	if (inputLaunchConfiguration.outputBufferOffsetImaginary != 0)	app->configuration.outputBufferOffsetImaginary = inputLaunchConfiguration.outputBufferOffsetImaginary;
+	if (inputLaunchConfiguration.kernelOffsetImaginary != 0)	app->configuration.kernelOffsetImaginary = inputLaunchConfiguration.kernelOffsetImaginary;
+	
 	//set optional parameters:
 	if (inputLaunchConfiguration.maxThreadsNum != 0)	app->configuration.maxThreadsNum = inputLaunchConfiguration.maxThreadsNum;
 	if (inputLaunchConfiguration.coalescedMemory != 0)	app->configuration.coalescedMemory = inputLaunchConfiguration.coalescedMemory;
@@ -1274,6 +1287,9 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	}
 	app->configuration.normalize = 0;
 	if (inputLaunchConfiguration.normalize != 0)	app->configuration.normalize = inputLaunchConfiguration.normalize;
+	
+	if (app->configuration.performDCT || app->configuration.performDST || app->configuration.bufferSeparateComplexComponents || app->configuration.tempBufferSeparateComplexComponents || app->configuration.inputBufferSeparateComplexComponents || app->configuration.outputBufferSeparateComplexComponents || app->configuration.kernelSeparateComplexComponents) app->configuration.coalescedMemory *= 2;
+
 	if (inputLaunchConfiguration.makeForwardPlanOnly != 0)	app->configuration.makeForwardPlanOnly = inputLaunchConfiguration.makeForwardPlanOnly;
 	if (inputLaunchConfiguration.makeInversePlanOnly != 0)	app->configuration.makeInversePlanOnly = inputLaunchConfiguration.makeInversePlanOnly;
 
@@ -1442,7 +1458,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	if (inputLaunchConfiguration.halfThreads != 0)	app->configuration.halfThreads = inputLaunchConfiguration.halfThreads;
 	if (inputLaunchConfiguration.swapTo2Stage4Step != 0)	app->configuration.swapTo2Stage4Step = inputLaunchConfiguration.swapTo2Stage4Step;
 	if (inputLaunchConfiguration.swapTo3Stage4Step != 0)	app->configuration.swapTo3Stage4Step = inputLaunchConfiguration.swapTo3Stage4Step;
-	if ((app->configuration.performDCT > 0) || (app->configuration.performDST > 0)) app->configuration.performBandwidthBoost = -1;
+	if (app->configuration.performDCT || app->configuration.performDST || app->configuration.bufferSeparateComplexComponents || app->configuration.tempBufferSeparateComplexComponents || app->configuration.inputBufferSeparateComplexComponents || app->configuration.outputBufferSeparateComplexComponents || app->configuration.kernelSeparateComplexComponents) app->configuration.performBandwidthBoost = 2;
 	if (inputLaunchConfiguration.performBandwidthBoost != 0)	app->configuration.performBandwidthBoost = inputLaunchConfiguration.performBandwidthBoost;
 #if(VKFFT_BACKEND==0)	
 	if (inputLaunchConfiguration.stagingBuffer != 0)	app->configuration.stagingBuffer = inputLaunchConfiguration.stagingBuffer;

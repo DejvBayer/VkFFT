@@ -435,6 +435,13 @@ static inline VkFFTResult VkFFTPlanAxis(VkFFTApplication* app, VkFFTPlan* FFTPla
 		axis->specializationConstants.outputOffset.data.i = app->configuration.outputBufferOffset;
 		axis->specializationConstants.kernelOffset.type = 31;
 		axis->specializationConstants.kernelOffset.data.i = app->configuration.kernelOffset;
+
+		axis->specializationConstants.inputOffsetImaginary.type = 31;
+		axis->specializationConstants.inputOffsetImaginary.data.i = app->configuration.inputBufferOffsetImaginary;
+		axis->specializationConstants.outputOffsetImaginary.type = 31;
+		axis->specializationConstants.outputOffsetImaginary.data.i = app->configuration.outputBufferOffsetImaginary;
+		axis->specializationConstants.kernelOffsetImaginary.type = 31;
+		axis->specializationConstants.kernelOffsetImaginary.data.i = app->configuration.kernelOffsetImaginary;
 	}
 
 	resFFT = VkFFTCheckUpdateBufferSet(app, axis, 1, 0);
@@ -664,14 +671,23 @@ static inline VkFFTResult VkFFTPlanAxis(VkFFTApplication* app, VkFFTPlan* FFTPla
 			if (axis->specializationConstants.performPostCompilationInputOffset) {
 				axis->pushConstants.performPostCompilationInputOffset = 1;
 				axis->pushConstants.structSize += 1;
+				if (axis->specializationConstants.inputBufferSeparateComplexComponents){
+					axis->pushConstants.structSize += 1;
+				}
 			}
 			if (axis->specializationConstants.performPostCompilationOutputOffset) {
 				axis->pushConstants.performPostCompilationOutputOffset = 1;
 				axis->pushConstants.structSize += 1;
+				if (axis->specializationConstants.outputBufferSeparateComplexComponents){
+					axis->pushConstants.structSize += 1;
+				}
 			}
 			if (axis->specializationConstants.performPostCompilationKernelOffset) {
 				axis->pushConstants.performPostCompilationKernelOffset = 1;
 				axis->pushConstants.structSize += 1;
+				if (axis->specializationConstants.kernelSeparateComplexComponents){
+					axis->pushConstants.structSize += 1;
+				}
 			}
 			if (app->configuration.useUint64)
 				axis->pushConstants.structSize *= sizeof(pfUINT);
@@ -782,8 +798,16 @@ static inline VkFFTResult VkFFTPlanAxis(VkFFTApplication* app, VkFFTPlan* FFTPla
 			axis->specializationConstants.code0 = 0;
 		}
 	}
-	freeMemoryParametersAPI(app, &axis->specializationConstants);
-	freeParametersAPI(app, &axis->specializationConstants);
+	resFFT = freeMemoryParametersAPI(app, &axis->specializationConstants);
+	if (resFFT != VKFFT_SUCCESS) {
+		deleteVkFFT(app);
+		return resFFT;
+	}
+	resFFT = freeParametersAPI(app, &axis->specializationConstants);
+	if (resFFT != VKFFT_SUCCESS) {
+		deleteVkFFT(app);
+		return resFFT;
+	}
 	if (axis->specializationConstants.axisSwapped) {//swap back for correct dispatch
 		pfUINT temp = axis->axisBlock[1];
 		axis->axisBlock[1] = axis->axisBlock[0];

@@ -79,16 +79,31 @@ static inline void appendPushConstants(VkFFTSpecializationConstantsLayout* sc) {
 		appendPushConstant(sc, &sc->inputOffset);
 		sprintf(tempCopyStr, "consts.%s", sc->inputOffset.name);
 		sprintf(sc->inputOffset.name, "%s", tempCopyStr);
+		if (sc->inputBufferSeparateComplexComponents) {
+			appendPushConstant(sc, &sc->inputOffsetImaginary);
+			sprintf(tempCopyStr, "consts.%s", sc->inputOffsetImaginary.name);
+			sprintf(sc->inputOffsetImaginary.name, "%s", tempCopyStr);
+		}
 	}
 	if (sc->performPostCompilationOutputOffset) {
 		appendPushConstant(sc, &sc->outputOffset);
 		sprintf(tempCopyStr, "consts.%s", sc->outputOffset.name);
 		sprintf(sc->outputOffset.name, "%s", tempCopyStr);
+		if (sc->outputBufferSeparateComplexComponents) {
+			appendPushConstant(sc, &sc->outputOffsetImaginary);
+			sprintf(tempCopyStr, "consts.%s", sc->outputOffsetImaginary.name);
+			sprintf(sc->outputOffsetImaginary.name, "%s", tempCopyStr);
+		}
 	}
 	if (sc->performPostCompilationKernelOffset) {
 		appendPushConstant(sc, &sc->kernelOffset);
 		sprintf(tempCopyStr, "consts.%s", sc->kernelOffset.name);
 		sprintf(sc->kernelOffset.name, "%s", tempCopyStr);
+		if (sc->kernelSeparateComplexComponents) {
+			appendPushConstant(sc, &sc->kernelOffsetImaginary);
+			sprintf(tempCopyStr, "consts.%s", sc->kernelOffsetImaginary.name);
+			sprintf(sc->kernelOffsetImaginary.name, "%s", tempCopyStr);
+		}
 	}
 #if(VKFFT_BACKEND==0)
 	sc->tempLen = sprintf(sc->tempStr, "} consts;\n\n");

@@ -2281,10 +2281,8 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 	if ((axis_id > 0) && (app->configuration.performR2C)) {
 		FFTPlan->actualFFTSizePerAxis[axis_id][0] = FFTPlan->actualFFTSizePerAxis[axis_id][0] / 2 + 1;
 	}
-	if (axis_id != nonStridedAxisId) {
-		if (app->configuration.performBandwidthBoost > 0)
-			axes->specializationConstants.performBandwidthBoost = (int)app->configuration.performBandwidthBoost;
-	}
+	if (app->configuration.performBandwidthBoost > 0)
+		axes->specializationConstants.performBandwidthBoost = (int)app->configuration.performBandwidthBoost;
 	//initial Stockham + Rader check
 	int multipliers[33];
 	for (int i = 0; i < 33; i++) {
@@ -2405,10 +2403,8 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 	//initial Bluestein check
 	if (tempSequence != 1) {
 		app->useBluesteinFFT[axis_id] = 1;
-		if (axis_id != nonStridedAxisId) {
-			if (app->configuration.performBandwidthBoost == 0)
-				axes->specializationConstants.performBandwidthBoost = 1;
-		}
+		if (app->configuration.performBandwidthBoost == 0)
+			axes->specializationConstants.performBandwidthBoost = 2;
 		app->configuration.registerBoost = 1;
 		tempSequence = 2 * FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] - 1;
 		int FFTSizeSelected = 0;
@@ -2628,7 +2624,7 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 		if (temp > 1) {//more passes than two
 			temp = ((!app->configuration.reorderFourStep) || (app->useBluesteinFFT[axis_id])) ? (int)pfceil(FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (double)maxSingleSizeNonStrided) : (int)pfceil(FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (double)maxSingleSizeStridedHalfBandwidth);
 			for (int i = 0; i < 5; i++) {
-				temp = (int)pfceil(temp / (double)maxSingleSizeStrided);
+				temp = (int)pfceil(temp / (double)maxSingleSizeStridedHalfBandwidth);
 				numPassesHalfBandwidth++;
 				if (temp == 1) i = 5;
 			}
@@ -2722,7 +2718,7 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 				int sqrtSequence = (int)pfceil(sqrt(FFTPlan->actualFFTSizePerAxis[axis_id][axis_id]));
 				for (int i = 0; i < sqrtSequence; i++) {
 					if (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] % (sqrtSequence - i) == 0) {
-						if ((sqrtSequence - i <= maxSingleSizeStrided) && (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrtSequence - i) <= maxSequenceLengthSharedMemory)) {
+						if ((sqrtSequence - i <= maxSingleSizeStridedHalfBandwidth) && (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrtSequence - i) <= maxSequenceLengthSharedMemory)) {
 							locAxisSplit[0] = FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrtSequence - i);
 							locAxisSplit[1] = sqrtSequence - i;
 							i = sqrtSequence;
@@ -2735,7 +2731,7 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 				int sqrtSequence = (int)pfceil(sqrt(FFTPlan->actualFFTSizePerAxis[axis_id][axis_id]));
 				for (int i = 0; i < sqrtSequence; i++) {
 					if (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] % (sqrtSequence - i) == 0) {
-						if ((sqrtSequence - i <= maxSingleSizeStrided) && (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrtSequence - i) <= maxSingleSizeStridedHalfBandwidth)) {
+						if ((sqrtSequence - i <= maxSingleSizeStridedHalfBandwidth) && (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrtSequence - i) <= maxSingleSizeStridedHalfBandwidth)) {
 							locAxisSplit[0] = FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrtSequence - i);
 							locAxisSplit[1] = sqrtSequence - i;
 							i = sqrtSequence;
@@ -2850,7 +2846,7 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 						int sqrt3Sequence = (int)pfceil(sqrt(FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (maxSequenceLengthSharedMemory - i)));
 						for (int j = 0; j < sqrt3Sequence; j++) {
 							if ((FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (maxSequenceLengthSharedMemory - i)) % (sqrt3Sequence - j) == 0) {
-								if (((maxSequenceLengthSharedMemory - i) <= maxSequenceLengthSharedMemory) && (sqrt3Sequence - j <= maxSingleSizeStrided) && (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (maxSequenceLengthSharedMemory - i) / (sqrt3Sequence - j) <= maxSingleSizeStrided)) {
+								if (((maxSequenceLengthSharedMemory - i) <= maxSequenceLengthSharedMemory) && (sqrt3Sequence - j <= maxSingleSizeStridedHalfBandwidth) && (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (maxSequenceLengthSharedMemory - i) / (sqrt3Sequence - j) <= maxSingleSizeStridedHalfBandwidth)) {
 									locAxisSplit[0] = (maxSequenceLengthSharedMemory - i);
 									locAxisSplit[1] = sqrt3Sequence - j;
 									locAxisSplit[2] = FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (maxSequenceLengthSharedMemory - i) / (sqrt3Sequence - j);
@@ -2870,7 +2866,7 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 						int sqrt2Sequence = (int)pfceil(sqrt(FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrt3Sequence - i)));
 						for (int j = 0; j < sqrt2Sequence; j++) {
 							if ((FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrt3Sequence - i)) % (sqrt2Sequence - j) == 0) {
-								if ((sqrt3Sequence - i <= maxSingleSizeStrided) && (sqrt2Sequence - j <= maxSingleSizeStrided) && (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrt3Sequence - i) / (sqrt2Sequence - j) <= maxSingleSizeStridedHalfBandwidth)) {
+								if ((sqrt3Sequence - i <= maxSingleSizeStridedHalfBandwidth) && (sqrt2Sequence - j <= maxSingleSizeStridedHalfBandwidth) && (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrt3Sequence - i) / (sqrt2Sequence - j) <= maxSingleSizeStridedHalfBandwidth)) {
 									locAxisSplit[0] = FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrt3Sequence - i) / (sqrt2Sequence - j);
 									locAxisSplit[1] = sqrt3Sequence - i;
 									locAxisSplit[2] = sqrt2Sequence - j;

@@ -243,26 +243,34 @@ static inline void appendOffset(VkFFTSpecializationConstantsLayout* sc, int read
 	}
 	if (readWrite) {
 		if (sc->outputOffset.type < 100) {
-			temp_int.data.i = sc->outputOffset.data.i / sc->outputNumberByteSize;
-			PfAdd(sc, &sc->shiftZ, &sc->shiftZ, &temp_int);
+			if(!sc->outputBufferSeparateComplexComponents){
+				temp_int.data.i = sc->outputOffset.data.i / sc->outputNumberByteSize;
+				PfAdd(sc, &sc->shiftZ, &sc->shiftZ, &temp_int);
+			}
 		}
 		else {
 			if (sc->outputOffset.type == 101) {
 				if (sc->performPostCompilationOutputOffset) {
-					PfAdd(sc, &sc->shiftZ, &sc->shiftZ, &sc->outputOffset);
+					if(!sc->outputBufferSeparateComplexComponents){
+						PfAdd(sc, &sc->shiftZ, &sc->shiftZ, &sc->outputOffset);
+					}
 				}
 			}
 		}
 	}
 	else {
 		if (sc->inputOffset.type < 100) {
-			temp_int.data.i = sc->inputOffset.data.i / sc->inputNumberByteSize;
-			PfAdd(sc, &sc->shiftZ, &sc->shiftZ, &temp_int);
+			if(!sc->inputBufferSeparateComplexComponents){
+				temp_int.data.i = sc->inputOffset.data.i / sc->inputNumberByteSize;
+				PfAdd(sc, &sc->shiftZ, &sc->shiftZ, &temp_int);
+			}
 		}
 		else {
 			if (sc->inputOffset.type == 101) {
 				if (sc->performPostCompilationInputOffset) {
-					PfAdd(sc, &sc->shiftZ, &sc->shiftZ, &sc->inputOffset);
+					if(!sc->inputBufferSeparateComplexComponents){
+						PfAdd(sc, &sc->shiftZ, &sc->shiftZ, &sc->inputOffset);
+					}
 				}
 			}
 		}
@@ -395,13 +403,17 @@ static inline void appendKernelOffset(VkFFTSpecializationConstantsLayout* sc, in
 		}
 	}
 	if (sc->kernelOffset.type < 100) {
-		temp_int.data.i = sc->kernelOffset.data.i / sc->kernelNumberByteSize;
-		PfAdd(sc, &sc->blockInvocationID, &sc->blockInvocationID, &temp_int);
+		if(!sc->kernelSeparateComplexComponents){
+			temp_int.data.i = sc->kernelOffset.data.i / sc->kernelNumberByteSize;
+			PfAdd(sc, &sc->blockInvocationID, &sc->blockInvocationID, &temp_int);
+		}
 	}
 	else {
 		if (sc->kernelOffset.type == 101) {
 			if (sc->performPostCompilationKernelOffset) {
-				PfAdd(sc, &sc->blockInvocationID, &sc->blockInvocationID, &sc->kernelOffset);
+				if(!sc->kernelSeparateComplexComponents){
+					PfAdd(sc, &sc->blockInvocationID, &sc->blockInvocationID, &sc->kernelOffset);
+				}
 			}
 		}
 	}

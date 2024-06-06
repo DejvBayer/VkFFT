@@ -351,6 +351,44 @@ VkFFTResult allocateBuffer(VkGPU* vkGPU, VkBuffer* buffer, VkDeviceMemory* devic
 	return resFFT;
 }
 #endif
+VkFFTResult allocateMemoryGPU(VkGPU* vkGPU, void** buffer, void** deviceMemoryVulkan, uint64_t bufferSize) {
+	VkFFTResult resFFT = VKFFT_SUCCESS;
+#if(VKFFT_BACKEND==0)
+	VkResult res = VK_SUCCESS;
+#elif(VKFFT_BACKEND==1)
+	cudaError_t res = cudaSuccess;
+#elif(VKFFT_BACKEND==2)
+	hipError_t res = hipSuccess;
+#elif(VKFFT_BACKEND==3)
+	cl_int res = CL_SUCCESS;
+#elif(VKFFT_BACKEND==4)
+	ze_result_t res = ZE_RESULT_SUCCESS;
+#elif(VKFFT_BACKEND==5)
+#endif
+#if(VKFFT_BACKEND==0)
+	resFFT = allocateBuffer(vkGPU, (VkBuffer*)buffer, (VkDeviceMemory*)deviceMemoryVulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_HEAP_DEVICE_LOCAL_BIT, bufferSize);
+	if (resFFT != VKFFT_SUCCESS) return resFFT;
+#elif(VKFFT_BACKEND==1)
+	res = cudaMalloc((void**)buffer, bufferSize);
+	if (res != cudaSuccess) return VKFFT_ERROR_FAILED_TO_ALLOCATE;
+#elif(VKFFT_BACKEND==2)
+	res = hipMalloc((void**)buffer, bufferSize);
+	if (res != hipSuccess) return VKFFT_ERROR_FAILED_TO_ALLOCATE;
+#elif(VKFFT_BACKEND==3)
+	cl_mem* buffer_ref = (cl_mem*)buffer;
+	buffer_ref[0] = clCreateBuffer(vkGPU->context, CL_MEM_READ_WRITE, bufferSize, 0, &res);
+	if (res != CL_SUCCESS) return VKFFT_ERROR_FAILED_TO_ALLOCATE;
+#elif(VKFFT_BACKEND==4)
+	ze_device_mem_alloc_desc_t device_desc = {};
+	device_desc.stype = ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC;
+	res = zeMemAllocDevice(vkGPU->context, &device_desc, bufferSize, sizeof(float), vkGPU->device, buffer);
+	if (res != ZE_RESULT_SUCCESS) return VKFFT_ERROR_FAILED_TO_ALLOCATE;
+#elif(VKFFT_BACKEND==5)
+    MTL::Buffer** buffer_ref = (MTL::Buffer**)buffer;
+    buffer_ref[0] = vkGPU->device->newBuffer(bufferSize, MTL::ResourceStorageModePrivate);
+#endif
+	return VKFFT_SUCCESS;
+}
 VkFFTResult transferDataToCPU(VkGPU* vkGPU, void* cpu_arr, void* output_buffer, uint64_t transferSize) {
 	//a function that transfers data from the GPU to the CPU using staging buffer, because the GPU memory is not host-coherent
 	VkFFTResult resFFT = VKFFT_SUCCESS;
@@ -755,6 +793,9 @@ VkFFTResult performVulkanFFT(VkGPU* vkGPU, VkFFTApplication* app, VkFFTLaunchPar
 	//Record commands num_iter times. Allows to perform multiple convolutions/transforms in one submit.
 	for (uint64_t i = 0; i < num_iter; i++) {
 		resFFT = VkFFTAppend(app, inverse, launchParams);
+		if (resFFT != VKFFT_SUCCESS) return resFFT;
+		launchParams->buffer = launchParams->kernel;
+		//resFFT = VkFFTAppend(app, inverse, launchParams);
 		if (resFFT != VKFFT_SUCCESS) return resFFT;
 	}
 	res = vkEndCommandBuffer(commandBuffer);

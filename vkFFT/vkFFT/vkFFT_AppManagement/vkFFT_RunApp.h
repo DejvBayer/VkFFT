@@ -150,8 +150,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                 //if (app->configuration.performZeropadding[1]) dispatchBlock[1] = (pfUINT)pfceil(dispatchBlock[1] / 2.0);
                 //if (app->configuration.performZeropadding[2]) dispatchBlock[2] = (pfUINT)pfceil(dispatchBlock[2] / 2.0);
                 resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 printDebugInformation(app, axis);
+                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 resFFT = VkFFTSync(app);
                 if (resFFT != VKFFT_SUCCESS) return resFFT;
             }
@@ -196,8 +196,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                     //if (app->configuration.performZeropadding[1]) dispatchBlock[1] = (pfUINT)pfceil(dispatchBlock[1] / 2.0);
                     //if (app->configuration.performZeropadding[2]) dispatchBlock[2] = (pfUINT)pfceil(dispatchBlock[2] / 2.0);
                     resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                    if (resFFT != VKFFT_SUCCESS) return resFFT;
                     printDebugInformation(app, axis);
+                    if (resFFT != VKFFT_SUCCESS) return resFFT;
                     resFFT = VkFFTSync(app);
                     if (resFFT != VKFFT_SUCCESS) return resFFT;
                 }
@@ -223,8 +223,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                 dispatchBlock[1] = 1;
                 dispatchBlock[2] = maxCoordinate * axis->specializationConstants.numBatches.data.i;
                 resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 printDebugInformation(app, axis);
+                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 resFFT = VkFFTSync(app);
                 if (resFFT != VKFFT_SUCCESS) return resFFT;
                 //app->configuration.size[0] *= 2;
@@ -255,8 +255,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                         //if (app->configuration.mergeSequencesR2C == 1) dispatchBlock[0] = (pfUINT)pfceil(dispatchBlock[0] / 2.0);
                         //if (app->configuration.performZeropadding[2]) dispatchBlock[2] = (pfUINT)pfceil(dispatchBlock[2] / 2.0);
                         resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                        if (resFFT != VKFFT_SUCCESS) return resFFT;
                         printDebugInformation(app, axis);
+                        if (resFFT != VKFFT_SUCCESS) return resFFT;
                         resFFT = VkFFTSync(app);
                         if (resFFT != VKFFT_SUCCESS) return resFFT;
                     }
@@ -284,9 +284,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                         //if (app->configuration.mergeSequencesR2C == 1) dispatchBlock[0] = (pfUINT)pfceil(dispatchBlock[0] / 2.0);
                         //if (app->configuration.performZeropadding[2]) dispatchBlock[2] = (pfUINT)pfceil(dispatchBlock[2] / 2.0);
                         resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                        if (resFFT != VKFFT_SUCCESS) return resFFT;
                         printDebugInformation(app, axis);
-                        
+                        if (resFFT != VKFFT_SUCCESS) return resFFT;
                         resFFT = VkFFTSync(app);
                         if (resFFT != VKFFT_SUCCESS) return resFFT;
                     }
@@ -310,8 +309,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                             //if (app->configuration.performZeropadding[1]) dispatchBlock[1] = (pfUINT)pfceil(dispatchBlock[1] / 2.0);
                             //if (app->configuration.performZeropadding[2]) dispatchBlock[2] = (pfUINT)pfceil(dispatchBlock[2] / 2.0);
                             resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                            if (resFFT != VKFFT_SUCCESS) return resFFT;
                             printDebugInformation(app, axis);
+                            if (resFFT != VKFFT_SUCCESS) return resFFT;
                             resFFT = VkFFTSync(app);
                             if (resFFT != VKFFT_SUCCESS) return resFFT;
                         }
@@ -346,8 +345,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                     }
                     //if (app->configuration.mergeSequencesR2C == 1) dispatchBlock[0] = (pfUINT)pfceil(dispatchBlock[0] / 2.0);
                     resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                    if (resFFT != VKFFT_SUCCESS) return resFFT;
                     printDebugInformation(app, axis);
+                    if (resFFT != VKFFT_SUCCESS) return resFFT;
                     resFFT = VkFFTSync(app);
                     if (resFFT != VKFFT_SUCCESS) return resFFT;
                 }
@@ -374,9 +373,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                 dispatchBlock[1] = 1;
                 dispatchBlock[2] = app->configuration.coordinateFeatures * app->configuration.numberBatches * app->configuration.numberKernels;
                 resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 printDebugInformation(app, axis);
-
+                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 resFFT = VkFFTSync(app);
                 if (resFFT != VKFFT_SUCCESS) return resFFT;
             }
@@ -429,8 +427,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                 //if (app->configuration.mergeSequencesR2C == 1) dispatchBlock[0] = (pfUINT)pfceil(dispatchBlock[0] / 2.0);
                 //if (app->configuration.performZeropadding[2]) dispatchBlock[2] = (pfUINT)pfceil(dispatchBlock[2] / 2.0);
                 resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 printDebugInformation(app, axis);
+                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 resFFT = VkFFTSync(app);
                 if (resFFT != VKFFT_SUCCESS) return resFFT;
             }
@@ -455,8 +453,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                 //if (app->configuration.mergeSequencesR2C == 1) dispatchBlock[0] = (pfUINT)pfceil(dispatchBlock[0] / 2.0);
                 //if (app->configuration.performZeropadding[2]) dispatchBlock[2] = (pfUINT)pfceil(dispatchBlock[2] / 2.0);
                 resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 printDebugInformation(app, axis);
+                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 resFFT = VkFFTSync(app);
                 if (resFFT != VKFFT_SUCCESS) return resFFT;
             }
@@ -491,8 +489,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
 
                     //if (app->configuration.mergeSequencesR2C == 1) dispatchBlock[0] = (pfUINT)pfceil(dispatchBlock[0] / 2.0);
                     resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                    if (resFFT != VKFFT_SUCCESS) return resFFT;
                     printDebugInformation(app, axis);
+                    if (resFFT != VKFFT_SUCCESS) return resFFT;
                     resFFT = VkFFTSync(app);
                     if (resFFT != VKFFT_SUCCESS) return resFFT;
                     //if ((!app->configuration.reorderFourStep) && (!app->useBluesteinFFT[2])) l = app->localFFTPlan_inverse->numAxisUploads[2] - 1 - l;
@@ -517,8 +515,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                         //if (app->configuration.performZeropadding[1]) dispatchBlock[1] = (pfUINT)pfceil(dispatchBlock[1] / 2.0);
                         //if (app->configuration.performZeropadding[2]) dispatchBlock[2] = (pfUINT)pfceil(dispatchBlock[2] / 2.0);
                         resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                        if (resFFT != VKFFT_SUCCESS) return resFFT;
                         printDebugInformation(app, axis);
+                        if (resFFT != VKFFT_SUCCESS) return resFFT;
                         resFFT = VkFFTSync(app);
                         if (resFFT != VKFFT_SUCCESS) return resFFT;
                     }
@@ -549,9 +547,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                 dispatchBlock[2] = app->configuration.coordinateFeatures * axis->specializationConstants.numBatches.data.i;
                 
                 resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 printDebugInformation(app, axis);
-
+                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 resFFT = VkFFTSync(app);
                 if (resFFT != VKFFT_SUCCESS) return resFFT;
             }
@@ -594,8 +591,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                 //if (app->configuration.performZeropadding[1]) dispatchBlock[1] = (pfUINT)pfceil(dispatchBlock[1] / 2.0);
                 //if (app->configuration.performZeropadding[2]) dispatchBlock[2] = (pfUINT)pfceil(dispatchBlock[2] / 2.0);
                 resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 printDebugInformation(app, axis);
+                if (resFFT != VKFFT_SUCCESS) return resFFT;
                 //if ((!app->configuration.reorderFourStep) && (!app->useBluesteinFFT[0])) l = app->localFFTPlan_inverse->numAxisUploads[0] - 1 - l;
                 resFFT = VkFFTSync(app);
                 if (resFFT != VKFFT_SUCCESS) return resFFT;
@@ -639,8 +636,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                     //if (app->configuration.performZeropadding[1]) dispatchBlock[1] = (pfUINT)pfceil(dispatchBlock[1] / 2.0);
                     //if (app->configuration.performZeropadding[2]) dispatchBlock[2] = (pfUINT)pfceil(dispatchBlock[2] / 2.0);
                     resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
-                    if (resFFT != VKFFT_SUCCESS) return resFFT;
                     printDebugInformation(app, axis);
+                    if (resFFT != VKFFT_SUCCESS) return resFFT;
                     resFFT = VkFFTSync(app);
                     if (resFFT != VKFFT_SUCCESS) return resFFT;
                 }

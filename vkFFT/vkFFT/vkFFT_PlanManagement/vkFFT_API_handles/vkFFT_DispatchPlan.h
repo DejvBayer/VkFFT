@@ -90,22 +90,55 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 							offset += sizeof(pfUINT);
 						}
 						if (axis->specializationConstants.performPostCompilationInputOffset) {
-							temp = axis->specializationConstants.inputOffset.data.i / axis->specializationConstants.inputNumberByteSize;
-							memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
-							offset += sizeof(pfUINT);
+							if (axis->specializationConstants.inputBufferSeparateComplexComponents){
+								temp = axis->specializationConstants.inputOffset.data.i / (axis->specializationConstants.inputNumberByteSize/2);
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
+								offset += sizeof(pfUINT);
+								temp = axis->specializationConstants.inputOffsetImaginary.data.i / (axis->specializationConstants.inputNumberByteSize/2);
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
+								offset += sizeof(pfUINT);
+							}else{
+								temp = axis->specializationConstants.inputOffset.data.i / axis->specializationConstants.inputNumberByteSize;
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
+								offset += sizeof(pfUINT);
+							}
 						}
 						if (axis->specializationConstants.performPostCompilationOutputOffset) {
-							temp = axis->specializationConstants.outputOffset.data.i / axis->specializationConstants.outputNumberByteSize;
-							memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
-							offset += sizeof(pfUINT);
+							if (axis->specializationConstants.outputBufferSeparateComplexComponents){
+								temp = axis->specializationConstants.outputOffset.data.i / (axis->specializationConstants.outputNumberByteSize/2);
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
+								offset += sizeof(pfUINT);
+								temp = axis->specializationConstants.outputOffsetImaginary.data.i / (axis->specializationConstants.outputNumberByteSize/2);
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
+								offset += sizeof(pfUINT);
+							}else{
+								temp = axis->specializationConstants.outputOffset.data.i / axis->specializationConstants.outputNumberByteSize;
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
+								offset += sizeof(pfUINT);
+							}
 						}
 						if (axis->specializationConstants.performPostCompilationKernelOffset) {
-							if (axis->specializationConstants.kernelNumberByteSize != 0)
-								temp = axis->specializationConstants.kernelOffset.data.i / axis->specializationConstants.kernelNumberByteSize;
-							else
-								temp = 0;
-							memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
-							offset += sizeof(pfUINT);
+							if (axis->specializationConstants.kernelSeparateComplexComponents){
+								if (axis->specializationConstants.kernelNumberByteSize != 0)
+									temp = axis->specializationConstants.kernelOffset.data.i / (axis->specializationConstants.kernelNumberByteSize/2);
+								else
+									temp = 0;
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
+								offset += sizeof(pfUINT);
+								if (axis->specializationConstants.kernelNumberByteSize != 0)
+									temp = axis->specializationConstants.kernelOffsetImaginary.data.i / (axis->specializationConstants.kernelNumberByteSize/2);
+								else
+									temp = 0;
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
+								offset += sizeof(pfUINT);
+							}else{
+								if (axis->specializationConstants.kernelNumberByteSize != 0)
+									temp = axis->specializationConstants.kernelOffset.data.i / axis->specializationConstants.kernelNumberByteSize;
+								else
+									temp = 0;
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(pfUINT));
+								offset += sizeof(pfUINT);
+							}
 						}
 					}
 					else {
@@ -127,22 +160,55 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 							offset += sizeof(uint32_t);
 						}
 						if (axis->specializationConstants.performPostCompilationInputOffset) {
-							temp = (uint32_t)(axis->specializationConstants.inputOffset.data.i / axis->specializationConstants.inputNumberByteSize);
-							memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
-							offset += sizeof(uint32_t);
+							if (axis->specializationConstants.inputBufferSeparateComplexComponents){
+								temp = (uint32_t)axis->specializationConstants.inputOffset.data.i / (axis->specializationConstants.inputNumberByteSize/2);
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
+								offset += sizeof(uint32_t);
+								temp = (uint32_t)axis->specializationConstants.inputOffsetImaginary.data.i / (axis->specializationConstants.inputNumberByteSize/2);
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
+								offset += sizeof(uint32_t);
+							}else{
+								temp = (uint32_t)axis->specializationConstants.inputOffset.data.i / axis->specializationConstants.inputNumberByteSize;
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
+								offset += sizeof(uint32_t);
+							}
 						}
 						if (axis->specializationConstants.performPostCompilationOutputOffset) {
-							temp = (uint32_t)(axis->specializationConstants.outputOffset.data.i / axis->specializationConstants.outputNumberByteSize);
-							memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
-							offset += sizeof(uint32_t);
+							if (axis->specializationConstants.outputBufferSeparateComplexComponents){
+								temp = (uint32_t)axis->specializationConstants.outputOffset.data.i / (axis->specializationConstants.outputNumberByteSize/2);
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
+								offset += sizeof(uint32_t);
+								temp = (uint32_t)axis->specializationConstants.outputOffsetImaginary.data.i / (axis->specializationConstants.outputNumberByteSize/2);
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
+								offset += sizeof(uint32_t);
+							}else{
+								temp = (uint32_t)axis->specializationConstants.outputOffset.data.i / axis->specializationConstants.outputNumberByteSize;
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
+								offset += sizeof(uint32_t);
+							}
 						}
 						if (axis->specializationConstants.performPostCompilationKernelOffset) {
-							if (axis->specializationConstants.kernelNumberByteSize != 0)
-								temp = (uint32_t)(axis->specializationConstants.kernelOffset.data.i / axis->specializationConstants.kernelNumberByteSize);
-							else
-								temp = 0;
-							memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
-							offset += sizeof(uint32_t);
+							if (axis->specializationConstants.kernelSeparateComplexComponents){
+								if (axis->specializationConstants.kernelNumberByteSize != 0)
+									temp = (uint32_t)axis->specializationConstants.kernelOffset.data.i / (axis->specializationConstants.kernelNumberByteSize/2);
+								else
+									temp = 0;
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
+								offset += sizeof(uint32_t);
+								if (axis->specializationConstants.kernelNumberByteSize != 0)
+									temp = (uint32_t)axis->specializationConstants.kernelOffsetImaginary.data.i / (axis->specializationConstants.kernelNumberByteSize/2);
+								else
+									temp = 0;
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
+								offset += sizeof(uint32_t);
+							}else{
+								if (axis->specializationConstants.kernelNumberByteSize != 0)
+									temp = (uint32_t)axis->specializationConstants.kernelOffset.data.i / axis->specializationConstants.kernelNumberByteSize;
+								else
+									temp = 0;
+								memcpy(&axis->pushConstants.data[offset], &temp, sizeof(uint32_t));
+								offset += sizeof(uint32_t);
+							}
 						}
 					}
 				}
@@ -155,14 +221,22 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 				vkCmdDispatch(app->configuration.commandBuffer[0], (uint32_t)dispatchSize[0], (uint32_t)dispatchSize[1], (uint32_t)dispatchSize[2]);
 #elif(VKFFT_BACKEND==1)
-				void* args[10];
+				void* args[20];
 				CUresult result = CUDA_SUCCESS;
-				args[0] = axis->inputBuffer;
-				args[1] = axis->outputBuffer;
-				pfUINT args_id = 2;
-				if (axis->specializationConstants.convolutionStep) {
-					args[args_id] = app->configuration.kernel;
+				pfUINT args_id = 0;
+				for (int i = 0; i < axis->specializationConstants.inputBufferNum; i++){
+					args[args_id] = &axis->inputBuffer[i];
 					args_id++;
+				}
+				for (int i = 0; i < axis->specializationConstants.outputBufferNum; i++){
+					args[args_id] = &axis->outputBuffer[i];
+					args_id++;
+				}
+				if (axis->specializationConstants.convolutionStep) {
+					for (int i = 0; i < axis->specializationConstants.kernelNum; i++){
+						args[args_id] = &axis->kernel[i];
+						args_id++;
+					}
 				}
 				if (axis->specializationConstants.LUT) {
 					args[args_id] = &axis->bufferLUT;
@@ -225,13 +299,21 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 #elif(VKFFT_BACKEND==2)
 				hipError_t result = hipSuccess;
-				void* args[10];
-				args[0] = axis->inputBuffer;
-				args[1] = axis->outputBuffer;
-				pfUINT args_id = 2;
-				if (axis->specializationConstants.convolutionStep) {
-					args[args_id] = app->configuration.kernel;
+				void* args[20];
+				pfUINT args_id = 0;
+				for (int i = 0; i < axis->specializationConstants.inputBufferNum; i++){
+					args[args_id] = &axis->inputBuffer[i];
 					args_id++;
+				}
+				for (int i = 0; i < axis->specializationConstants.outputBufferNum; i++){
+					args[args_id] = &axis->outputBuffer[i];
+					args_id++;
+				}
+				if (axis->specializationConstants.convolutionStep) {
+					for (int i = 0; i < axis->specializationConstants.kernelNum; i++){
+						args[args_id] = &axis->kernel[i];
+						args_id++;
+					}
 				}
 				if (axis->specializationConstants.LUT) {
 					args[args_id] = &axis->bufferLUT;
@@ -295,29 +377,38 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 #elif(VKFFT_BACKEND==3)
 				cl_int result = CL_SUCCESS;
-				void* args[10];
-				args[0] = axis->inputBuffer;
-				result = clSetKernelArg(axis->kernel, 0, sizeof(cl_mem), args[0]);
-				if (result != CL_SUCCESS) {
-					return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
-				}
-				args[1] = axis->outputBuffer;
-				result = clSetKernelArg(axis->kernel, 1, sizeof(cl_mem), args[1]);
-				if (result != CL_SUCCESS) {
-					return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
-				}
-				pfUINT args_id = 2;
-				if (axis->specializationConstants.convolutionStep) {
-					args[args_id] = app->configuration.kernel;
-					result = clSetKernelArg(axis->kernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
+				void* args[20];
+
+				pfUINT args_id = 0;
+				for (int i = 0; i < axis->specializationConstants.inputBufferNum; i++){
+					args[args_id] = &axis->inputBuffer[i];
+					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 					if (result != CL_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
 					}
 					args_id++;
 				}
+				for (int i = 0; i < axis->specializationConstants.outputBufferNum; i++){
+					args[args_id] = &axis->outputBuffer[i];
+					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
+					if (result != CL_SUCCESS) {
+						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
+					}
+					args_id++;
+				}
+				if (axis->specializationConstants.convolutionStep) {
+					for (int i = 0; i < axis->specializationConstants.kernelNum; i++){
+						args[args_id] = &axis->kernel[i];
+						result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
+						if (result != CL_SUCCESS) {
+							return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
+						}
+						args_id++;
+					}
+				}
 				if (axis->specializationConstants.LUT) {
 					args[args_id] = &axis->bufferLUT;
-					result = clSetKernelArg(axis->kernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
+					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 					if (result != CL_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
 					}
@@ -325,7 +416,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 				if (axis->specializationConstants.raderUintLUT) {
 					args[args_id] = &axis->bufferRaderUintLUT;
-					result = clSetKernelArg(axis->kernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
+					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 					if (result != CL_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
 					}
@@ -336,7 +427,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 						args[args_id] = &app->bufferBluesteinIFFT[axis->specializationConstants.axis_id];
 					else
 						args[args_id] = &app->bufferBluesteinFFT[axis->specializationConstants.axis_id];
-					result = clSetKernelArg(axis->kernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
+					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 					if (result != CL_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
 					}
@@ -344,7 +435,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 				if (axis->specializationConstants.useBluesteinFFT && (axis->specializationConstants.BluesteinPreMultiplication || axis->specializationConstants.BluesteinPostMultiplication)) {
 					args[args_id] = &app->bufferBluestein[axis->specializationConstants.axis_id];
-					result = clSetKernelArg(axis->kernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
+					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 					if (result != CL_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
 					}
@@ -352,7 +443,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 
 				if (axis->pushConstants.structSize > 0) {
-					result = clSetKernelArg(axis->kernel, (cl_uint)args_id, axis->pushConstants.structSize, axis->pushConstants.data);
+					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, axis->pushConstants.structSize, axis->pushConstants.data);
 					if (result != CL_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
 					}
@@ -360,7 +451,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 				size_t local_work_size[3] = { (size_t)axis->specializationConstants.localSize[0].data.i , (size_t)axis->specializationConstants.localSize[1].data.i ,(size_t)axis->specializationConstants.localSize[2].data.i };
 				size_t global_work_size[3] = { (size_t)dispatchSize[0] * local_work_size[0] , (size_t)dispatchSize[1] * local_work_size[1] ,(size_t)dispatchSize[2] * local_work_size[2] };
-				result = clEnqueueNDRangeKernel(app->configuration.commandQueue[0], axis->kernel, 3, 0, global_work_size, local_work_size, 0, 0, 0);
+				result = clEnqueueNDRangeKernel(app->configuration.commandQueue[0], axis->VkFFTKernel, 3, 0, global_work_size, local_work_size, 0, 0, 0);
 				//printf("%" PRIu64 " %" PRIu64 " %" PRIu64 " - %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", maxBlockSize[0], maxBlockSize[1], maxBlockSize[2], axis->specializationConstants.localSize[0], axis->specializationConstants.localSize[1], axis->specializationConstants.localSize[2]);
 
 				if (result != CL_SUCCESS) {
@@ -368,25 +459,33 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 #elif(VKFFT_BACKEND==4)
 				ze_result_t result = ZE_RESULT_SUCCESS;
-				void* args[10];
-				args[0] = axis->inputBuffer;
-				result = zeKernelSetArgumentValue(axis->VkFFTKernel, 0, sizeof(void*), args[0]);
-				if (result != ZE_RESULT_SUCCESS) {
-					return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
-				}
-				args[1] = axis->outputBuffer;
-				result = zeKernelSetArgumentValue(axis->VkFFTKernel, 1, sizeof(void*), args[1]);
-				if (result != ZE_RESULT_SUCCESS) {
-					return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
-				}
-				pfUINT args_id = 2;
-				if (axis->specializationConstants.convolutionStep) {
-					args[args_id] = app->configuration.kernel;
+				void* args[20];
+				pfUINT args_id = 0;
+				for (int i = 0; i < axis->specializationConstants.inputBufferNum; i++){
+					args[args_id] = &axis->inputBuffer[i];
 					result = zeKernelSetArgumentValue(axis->VkFFTKernel, (uint32_t)args_id, sizeof(void*), args[args_id]);
 					if (result != ZE_RESULT_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
 					}
 					args_id++;
+				}
+				for (int i = 0; i < axis->specializationConstants.outputBufferNum; i++){
+					args[args_id] = &axis->outputBuffer[i];
+					result = zeKernelSetArgumentValue(axis->VkFFTKernel, (uint32_t)args_id, sizeof(void*), args[args_id]);
+					if (result != ZE_RESULT_SUCCESS) {
+						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
+					}
+					args_id++;
+				}
+				if (axis->specializationConstants.convolutionStep) {
+					for (int i = 0; i < axis->specializationConstants.kernelNum; i++){
+						args[args_id] = &axis->kernelBuffer[i];
+						result = zeKernelSetArgumentValue(axis->VkFFTKernel, (uint32_t)args_id, sizeof(void*), args[args_id]);
+						if (result != ZE_RESULT_SUCCESS) {
+							return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
+						}
+						args_id++;
+					}
 				}
 				if (axis->specializationConstants.LUT) {
 					args[args_id] = &axis->bufferLUT;
@@ -442,15 +541,24 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 #elif(VKFFT_BACKEND==5)
 				app->configuration.commandEncoder->setComputePipelineState(axis->pipeline);
-				void* args[10];
-				app->configuration.commandEncoder->setBuffer(axis->inputBuffer[0], 0, 0);
-				app->configuration.commandEncoder->setBuffer(axis->outputBuffer[0], 0, 1);
+				void* args[20];
+				pfUINT args_id = 0;
+				for (int i = 0; i < axis->specializationConstants.inputBufferNum; i++){
+					app->configuration.commandEncoder->setBuffer(axis->inputBuffer[i], 0, args_id);
+					args_id++;
+				}
+				for (int i = 0; i < axis->specializationConstants.outputBufferNum; i++){
+					app->configuration.commandEncoder->setBuffer(axis->outputBuffer[i], 0, args_id);
+					args_id++;
+				}
+
 				app->configuration.commandEncoder->setThreadgroupMemoryLength((pfUINT)pfceil(axis->specializationConstants.usedSharedMemory.data.i / 16.0) * 16, 0);
 
-				pfUINT args_id = 2;
 				if (axis->specializationConstants.convolutionStep) {
-					app->configuration.commandEncoder->setBuffer(app->configuration.kernel[0], 0, args_id);
-					args_id++;
+					for (int i = 0; i < axis->specializationConstants.kernelNum; i++){
+						app->configuration.commandEncoder->setBuffer(axis->kernel[i], 0, args_id);
+						args_id++;
+					}
 				}
 				if (axis->specializationConstants.LUT) {
 					app->configuration.commandEncoder->setBuffer(axis->bufferLUT, 0, args_id);
