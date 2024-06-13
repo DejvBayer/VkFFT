@@ -81,7 +81,7 @@ static inline void appendReorder4Step(VkFFTSpecializationConstantsLayout* sc, in
 			}
 			for (pfUINT i = 0; i < (pfUINT)temp_int1.data.i; i++) {
 				PfMod(sc, &temp_int, &sc->fftDim, &sc->localSize[1]);
-				if ((temp_int.data.i != 0) && (i == (temp_int1.data.i - 1))) {
+				if ((temp_int.data.i != 0) && ((int64_t)i == (temp_int1.data.i - 1))) {
 					PfIf_lt_start(sc, &sc->gl_LocalInvocationID_y, &temp_int);				
 				}
 				pfUINT id = (i / logicalRegistersPerThread) * sc->registers_per_thread + i % logicalRegistersPerThread;
@@ -142,7 +142,7 @@ static inline void appendReorder4Step(VkFFTSpecializationConstantsLayout* sc, in
 					appendRegistersToShared(sc, &sc->sdataID, &sc->w);
 				}
 				PfMod(sc, &temp_int, &sc->fftDim, &sc->localSize[1]);
-				if ((temp_int.data.i != 0) && (i == (temp_int1.data.i - 1))) {
+				if ((temp_int.data.i != 0) && ((int64_t)i == (temp_int1.data.i - 1))) {
 					PfIf_end(sc);
 				}
 			}

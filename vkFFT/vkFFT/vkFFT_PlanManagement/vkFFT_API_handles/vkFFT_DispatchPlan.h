@@ -221,19 +221,19 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 				vkCmdDispatch(app->configuration.commandBuffer[0], (uint32_t)dispatchSize[0], (uint32_t)dispatchSize[1], (uint32_t)dispatchSize[2]);
 #elif(VKFFT_BACKEND==1)
-				void* args[20];
+				const void* args[20];
 				CUresult result = CUDA_SUCCESS;
 				pfUINT args_id = 0;
-				for (int i = 0; i < axis->specializationConstants.inputBufferNum; i++){
+				for (int l = 0; l < axis->specializationConstants.inputBufferNum; l++){
 					args[args_id] = &axis->inputBuffer[i];
 					args_id++;
 				}
-				for (int i = 0; i < axis->specializationConstants.outputBufferNum; i++){
+				for (int l = 0; l < axis->specializationConstants.outputBufferNum; l++){
 					args[args_id] = &axis->outputBuffer[i];
 					args_id++;
 				}
 				if (axis->specializationConstants.convolutionStep) {
-					for (int i = 0; i < axis->specializationConstants.kernelNum; i++){
+					for (int l = 0; l < axis->specializationConstants.kernelNum; l++){
 						args[args_id] = &axis->kernel[i];
 						args_id++;
 					}
@@ -276,14 +276,14 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 						(unsigned int)dispatchSize[0], (unsigned int)dispatchSize[1], (unsigned int)dispatchSize[2],     // grid dim
 						(unsigned int)axis->specializationConstants.localSize[0].data.i, (unsigned int)axis->specializationConstants.localSize[1].data.i, (unsigned int)axis->specializationConstants.localSize[2].data.i,   // block dim
 						(unsigned int)axis->specializationConstants.usedSharedMemory.data.i, app->configuration.stream[app->configuration.streamID],             // shared mem and stream
-						args, 0);
+						(void**)args, 0);
 				}
 				else {
 					result = cuLaunchKernel(axis->VkFFTKernel,
 						(unsigned int)dispatchSize[0], (unsigned int)dispatchSize[1], (unsigned int)dispatchSize[2],     // grid dim
 						(unsigned int)axis->specializationConstants.localSize[0].data.i, (unsigned int)axis->specializationConstants.localSize[1].data.i, (unsigned int)axis->specializationConstants.localSize[2].data.i,   // block dim
 						(unsigned int)axis->specializationConstants.usedSharedMemory.data.i, 0,             // shared mem and stream
-						args, 0);
+						(void**)args, 0);
 				}
 				if (result != CUDA_SUCCESS) {
 					printf("cuLaunchKernel error: %d, %" PRIu64 " %" PRIu64 " %" PRIu64 " - %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", result, dispatchSize[0], dispatchSize[1], dispatchSize[2], axis->specializationConstants.localSize[0].data.i, axis->specializationConstants.localSize[1].data.i, axis->specializationConstants.localSize[2].data.i);
@@ -299,18 +299,18 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 #elif(VKFFT_BACKEND==2)
 				hipError_t result = hipSuccess;
-				void* args[20];
+				const void* args[20];
 				pfUINT args_id = 0;
-				for (int i = 0; i < axis->specializationConstants.inputBufferNum; i++){
+				for (int l = 0; l < axis->specializationConstants.inputBufferNum; l++){
 					args[args_id] = &axis->inputBuffer[i];
 					args_id++;
 				}
-				for (int i = 0; i < axis->specializationConstants.outputBufferNum; i++){
+				for (int l = 0; l < axis->specializationConstants.outputBufferNum; l++){
 					args[args_id] = &axis->outputBuffer[i];
 					args_id++;
 				}
 				if (axis->specializationConstants.convolutionStep) {
-					for (int i = 0; i < axis->specializationConstants.kernelNum; i++){
+					for (int l = 0; l < axis->specializationConstants.kernelNum; l++){
 						args[args_id] = &axis->kernel[i];
 						args_id++;
 					}
@@ -354,14 +354,14 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 						(unsigned int)dispatchSize[0], (unsigned int)dispatchSize[1], (unsigned int)dispatchSize[2],     // grid dim
 						(unsigned int)axis->specializationConstants.localSize[0].data.i, (unsigned int)axis->specializationConstants.localSize[1].data.i, (unsigned int)axis->specializationConstants.localSize[2].data.i,   // block dim
 						(unsigned int)axis->specializationConstants.usedSharedMemory.data.i, app->configuration.stream[app->configuration.streamID],             // shared mem and stream
-						args, 0);
+						(void**)args, 0);
 				}
 				else {
 					result = hipModuleLaunchKernel(axis->VkFFTKernel,
 						(unsigned int)dispatchSize[0], (unsigned int)dispatchSize[1], (unsigned int)dispatchSize[2],     // grid dim
 						(unsigned int)axis->specializationConstants.localSize[0].data.i, (unsigned int)axis->specializationConstants.localSize[1].data.i, (unsigned int)axis->specializationConstants.localSize[2].data.i,   // block dim
 						(unsigned int)axis->specializationConstants.usedSharedMemory.data.i, 0,             // shared mem and stream
-						args, 0);
+						(void**)args, 0);
 				}
 				if (result != hipSuccess) {
 					printf("hipModuleLaunchKernel error: %d, %" PRIu64 " %" PRIu64 " %" PRIu64 " - %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", result, dispatchSize[0], dispatchSize[1], dispatchSize[2], axis->specializationConstants.localSize[0].data.i, axis->specializationConstants.localSize[1].data.i, axis->specializationConstants.localSize[2].data.i);
@@ -377,10 +377,10 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 #elif(VKFFT_BACKEND==3)
 				cl_int result = CL_SUCCESS;
-				void* args[20];
+				const void* args[20];
 
 				pfUINT args_id = 0;
-				for (int i = 0; i < axis->specializationConstants.inputBufferNum; i++){
+				for (int l = 0; l < axis->specializationConstants.inputBufferNum; l++){
 					args[args_id] = &axis->inputBuffer[i];
 					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 					if (result != CL_SUCCESS) {
@@ -388,7 +388,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 					}
 					args_id++;
 				}
-				for (int i = 0; i < axis->specializationConstants.outputBufferNum; i++){
+				for (int l = 0; l < axis->specializationConstants.outputBufferNum; l++){
 					args[args_id] = &axis->outputBuffer[i];
 					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 					if (result != CL_SUCCESS) {
@@ -397,7 +397,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 					args_id++;
 				}
 				if (axis->specializationConstants.convolutionStep) {
-					for (int i = 0; i < axis->specializationConstants.kernelNum; i++){
+					for (int l = 0; l < axis->specializationConstants.kernelNum; l++){
 						args[args_id] = &axis->kernel[i];
 						result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 						if (result != CL_SUCCESS) {
@@ -459,9 +459,9 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 #elif(VKFFT_BACKEND==4)
 				ze_result_t result = ZE_RESULT_SUCCESS;
-				void* args[20];
+				const void* args[20];
 				pfUINT args_id = 0;
-				for (int i = 0; i < axis->specializationConstants.inputBufferNum; i++){
+				for (int l = 0; l < axis->specializationConstants.inputBufferNum; l++){
 					args[args_id] = &axis->inputBuffer[i];
 					result = zeKernelSetArgumentValue(axis->VkFFTKernel, (uint32_t)args_id, sizeof(void*), args[args_id]);
 					if (result != ZE_RESULT_SUCCESS) {
@@ -469,7 +469,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 					}
 					args_id++;
 				}
-				for (int i = 0; i < axis->specializationConstants.outputBufferNum; i++){
+				for (int l = 0; l < axis->specializationConstants.outputBufferNum; l++){
 					args[args_id] = &axis->outputBuffer[i];
 					result = zeKernelSetArgumentValue(axis->VkFFTKernel, (uint32_t)args_id, sizeof(void*), args[args_id]);
 					if (result != ZE_RESULT_SUCCESS) {
@@ -478,7 +478,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 					args_id++;
 				}
 				if (axis->specializationConstants.convolutionStep) {
-					for (int i = 0; i < axis->specializationConstants.kernelNum; i++){
+					for (int l = 0; l < axis->specializationConstants.kernelNum; l++){
 						args[args_id] = &axis->kernelBuffer[i];
 						result = zeKernelSetArgumentValue(axis->VkFFTKernel, (uint32_t)args_id, sizeof(void*), args[args_id]);
 						if (result != ZE_RESULT_SUCCESS) {
@@ -541,13 +541,13 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 #elif(VKFFT_BACKEND==5)
 				app->configuration.commandEncoder->setComputePipelineState(axis->pipeline);
-				void* args[20];
+				const void* args[20];
 				pfUINT args_id = 0;
-				for (int i = 0; i < axis->specializationConstants.inputBufferNum; i++){
+				for (int l = 0; l < axis->specializationConstants.inputBufferNum; l++){
 					app->configuration.commandEncoder->setBuffer(axis->inputBuffer[i], 0, args_id);
 					args_id++;
 				}
-				for (int i = 0; i < axis->specializationConstants.outputBufferNum; i++){
+				for (int l = 0; l < axis->specializationConstants.outputBufferNum; l++){
 					app->configuration.commandEncoder->setBuffer(axis->outputBuffer[i], 0, args_id);
 					args_id++;
 				}
@@ -555,7 +555,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				app->configuration.commandEncoder->setThreadgroupMemoryLength((pfUINT)pfceil(axis->specializationConstants.usedSharedMemory.data.i / 16.0) * 16, 0);
 
 				if (axis->specializationConstants.convolutionStep) {
-					for (int i = 0; i < axis->specializationConstants.kernelNum; i++){
+					for (int l = 0; l < axis->specializationConstants.kernelNum; l++){
 						app->configuration.commandEncoder->setBuffer(axis->kernel[i], 0, args_id);
 						args_id++;
 					}

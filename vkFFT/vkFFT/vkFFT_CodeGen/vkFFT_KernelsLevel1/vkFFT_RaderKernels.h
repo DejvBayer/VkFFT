@@ -1509,7 +1509,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 			}
 			//save x0
 			for (pfUINT t = 0; t < (pfUINT)num_logical_groups.data.i; t++) {
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					temp_int.data.i = sc->fftDim.data.i / stageRadix->data.i - t * num_logical_subgroups;
 					PfIf_lt_start(sc, &sc->raderIDx2, &temp_int);
 				}
@@ -1539,7 +1539,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 				}
 				appendSharedToRegisters(sc, &sc->x0[t], &sc->sdataID);
 				
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					PfIf_end(sc);
 				}
 			}
@@ -1571,7 +1571,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 				*/
 			}
 			for (pfUINT t = 0; t < (pfUINT)num_logical_groups.data.i; t++) {
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					temp_int.data.i = sc->fftDim.data.i / stageRadix->data.i - t * num_logical_subgroups;
 					PfIf_lt_start(sc, &sc->raderIDx2, &temp_int);
 					
@@ -1595,7 +1595,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 
 				appendSharedToRegisters(sc, &sc->regIDs[t * 2], &sc->combinedID);
 
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					PfIf_end(sc);
 				}
 			}
@@ -1623,7 +1623,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 			}
 
 			for (pfUINT t = 0; t < (pfUINT)num_logical_groups.data.i; t++) {
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					temp_int.data.i = sc->fftDim.data.i / stageRadix->data.i - t * num_logical_subgroups;
 					PfIf_lt_start(sc, &sc->raderIDx2, &temp_int);
 				}
@@ -1647,7 +1647,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 				appendSharedToRegisters(sc, &sc->regIDs[t * 2 + 1], &sc->combinedID);
 
 
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					PfIf_end(sc);
 				}
 			}
@@ -1919,7 +1919,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 			PfIf_gt_start(sc, &sc->raderIDx, &temp_int);
 			
 			for (pfUINT t = 0; t < (pfUINT)num_logical_groups.data.i; t++) {
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					temp_int.data.i = sc->fftDim.data.i / stageRadix->data.i - t * num_logical_subgroups;
 					PfIf_lt_start(sc, &sc->raderIDx2, &temp_int);
 				}
@@ -1958,7 +1958,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 				appendRegistersToShared(sc, &sc->sdataID, &sc->regIDs[2 * t]);
 				appendRegistersToShared(sc, &sc->combinedID, &sc->temp);
 			
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					PfIf_end(sc);
 				}
 			}
@@ -2035,7 +2035,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 
 				for (pfUINT t = 0; t < (pfUINT)num_logical_groups.data.i; t++) {
 #if(VKFFT_BACKEND != 2) //AMD compiler fix
-					if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+					if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 						temp_int.data.i = sc->fftDim.data.i / stageRadix->data.i - t * num_logical_subgroups;
 						PfIf_lt_start(sc, &sc->raderIDx2, &temp_int);
 					}
@@ -2078,7 +2078,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 					PfFMA3(sc, &sc->x0[t], &sc->regIDs[2 * t + 1], &sc->regIDs[0], &sc->w, &sc->temp);
 					
 #if(VKFFT_BACKEND != 2) //AMD compiler fix
-					if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+					if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 						PfIf_end(sc);
 					}
 #endif
@@ -2162,7 +2162,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 #endif
 			}
 			for (pfUINT t = 0; t < (pfUINT)num_logical_groups.data.i; t++) {
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					temp_int.data.i = sc->fftDim.data.i / stageRadix->data.i - t * num_logical_subgroups;
 					PfIf_lt_start(sc, &sc->raderIDx2, &temp_int);
 				}
@@ -2176,7 +2176,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 				PfSub(sc, &sc->regIDs[2 * t + 1].data.c[1], &sc->x0[t].data.c[1], &sc->regIDs[2 * t + 1].data.c[1]);
 
 
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					PfIf_end(sc);
 				}
 			}
@@ -2247,7 +2247,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 			PfIf_end(sc);
 			
 			for (pfUINT t = 0; t < (pfUINT)num_logical_groups.data.i; t++) {
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					temp_int.data.i = sc->fftDim.data.i / stageRadix->data.i - t * num_logical_subgroups;
 					PfIf_lt_start(sc, &sc->raderIDx2, &temp_int);
 				}
@@ -2284,7 +2284,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 				}
 				appendRegistersToShared(sc, &sc->combinedID, &sc->regIDs[2 * t]);
 				
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					PfIf_end(sc);
 				}
 			}
@@ -2314,7 +2314,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 				*/
 			}
 			for (pfUINT t = 0; t < (pfUINT)num_logical_groups.data.i; t++) {
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					temp_int.data.i = sc->fftDim.data.i / stageRadix->data.i - t * num_logical_subgroups;
 					PfIf_lt_start(sc, &sc->raderIDx2, &temp_int);
 				}
@@ -2351,7 +2351,7 @@ static inline void appendMultRaderStage(VkFFTSpecializationConstantsLayout* sc, 
 				}
 				appendRegistersToShared(sc, &sc->combinedID, &sc->regIDs[2 * t + 1]);
 
-				if ((require_cutoff_check) && (t == num_logical_groups.data.i - 1)) {
+				if ((require_cutoff_check) && ((int64_t)t == num_logical_groups.data.i - 1)) {
 					PfIf_end(sc);
 				}
 			}

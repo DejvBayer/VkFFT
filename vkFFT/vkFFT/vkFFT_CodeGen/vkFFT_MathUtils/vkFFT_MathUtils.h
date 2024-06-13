@@ -3164,7 +3164,7 @@ static inline void PfAnd(VkFFTSpecializationConstantsLayout* sc, PfContainer* ou
 					else {
 						switch (in_2->type % 10) {
 						case 1:
-							out->data.i = in_1->data.i && in_2->data.i;
+							out->data.i = in_1->data.i & in_2->data.i;
 							return;
 						}
 					}
@@ -3279,7 +3279,7 @@ static inline void PfOr(VkFFTSpecializationConstantsLayout* sc, PfContainer* out
 					else {
 						switch (in_2->type % 10) {
 						case 1:
-							out->data.i = in_1->data.i || in_2->data.i;
+							out->data.i = in_1->data.i | in_2->data.i;
 							return;
 						}
 					}

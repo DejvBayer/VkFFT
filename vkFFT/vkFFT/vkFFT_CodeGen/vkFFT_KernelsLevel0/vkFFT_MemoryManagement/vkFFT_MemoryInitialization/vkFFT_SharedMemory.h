@@ -84,11 +84,11 @@ static inline void appendSharedMemoryVkFFT(VkFFTSpecializationConstantsLayout* s
 		sc->usedSharedMemory.data.i = sc->complexSize * sc->localSize[1].data.i * sc->maxSharedStride.data.i;
 		sc->maxSharedStride.data.i = ((sc->sharedMemSize < sc->usedSharedMemory.data.i)) ? sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared : sc->maxSharedStride.data.i;
 
-		sc->sharedStrideBankConflictFirstStages.data.i = (sc->maxSharedStride.data.i == (sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared)) ? sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared : sc->sharedStrideBankConflictFirstStages.data.i;
-		sc->sharedStrideReadWriteConflict.data.i = (sc->maxSharedStride.data.i == (sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared)) ? sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared : sc->sharedStrideReadWriteConflict.data.i;
+		sc->sharedStrideBankConflictFirstStages.data.i = (sc->maxSharedStride.data.i == (int64_t)(sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared)) ? sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared : sc->sharedStrideBankConflictFirstStages.data.i;
+		sc->sharedStrideReadWriteConflict.data.i = (sc->maxSharedStride.data.i == (int64_t)(sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared)) ? sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared : sc->sharedStrideReadWriteConflict.data.i;
 		if (sc->useRaderFFT) {
-			sc->sharedStrideRaderFFT.data.i = (sc->maxSharedStride.data.i == (sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared)) ? sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared : sc->sharedStrideRaderFFT.data.i;
-			sc->sharedShiftRaderFFT.data.i = (sc->maxSharedStride.data.i == (sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared)) ? 0 : sc->sharedShiftRaderFFT.data.i;
+			sc->sharedStrideRaderFFT.data.i = (sc->maxSharedStride.data.i == (int64_t)(sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared)) ? sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared : sc->sharedStrideRaderFFT.data.i;
+			sc->sharedShiftRaderFFT.data.i = (sc->maxSharedStride.data.i == (int64_t)(sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared)) ? 0 : sc->sharedShiftRaderFFT.data.i;
 		}
 		//sc->maxSharedStride += mergeR2C;
 		//printf("%" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", sc->maxSharedStride, sc->sharedStrideBankConflictFirstStages, sc->sharedStrideReadWriteConflict, sc->localSize[1], sc->fftDim);

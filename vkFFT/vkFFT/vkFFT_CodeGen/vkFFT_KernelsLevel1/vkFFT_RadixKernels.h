@@ -317,7 +317,7 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				PfMov(sc, &sc->locID[i], &regID[i]);
 			}
 			else {
-				if (i == radix - 1) {
+				if ((int64_t)i == radix - 1) {
 					if (sc->LUT) {
 						if (sc->useCoalescedLUTUploadToSM) {
 							appendSharedToRegisters(sc, &sc->w, &sc->stageInvocationID);
@@ -443,7 +443,7 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				//PfMov(sc, &sc->w, &temp_complex);	
 			}
 			else {
-				if (i == radix - 1) {
+				if ((int64_t)i == radix - 1) {
 					if (sc->LUT) {
 						if (sc->useCoalescedLUTUploadToSM) {
 							appendSharedToRegisters(sc, &sc->w, &sc->stageInvocationID);
@@ -613,7 +613,7 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				PfMov(sc, &sc->locID[i], &regID[i]);
 			}
 			else {
-				if (i == radix - 1) {
+				if ((int64_t)i == radix - 1) {
 					if (sc->LUT) {
 						if (sc->useCoalescedLUTUploadToSM) {
 							appendSharedToRegisters(sc, &sc->w, &sc->stageInvocationID);
@@ -975,7 +975,7 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				
 			}
 			else {
-				if (i == radix - 1) {
+				if ((int64_t)i == radix - 1) {
 					if (sc->LUT) {
 						if (sc->useCoalescedLUTUploadToSM) {
 							appendSharedToRegisters(sc, &sc->w, &sc->stageInvocationID);
@@ -1158,7 +1158,7 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				
 			}
 			else {
-				if (i == radix - 1) {
+				if ((int64_t)i == radix - 1) {
 					if (sc->LUT) {
 						if (sc->useCoalescedLUTUploadToSM) {
 							appendSharedToRegisters(sc, &sc->w, &sc->stageInvocationID);
@@ -1371,7 +1371,7 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				PfMov(sc, &sc->locID[i], &regID[i]);
 			}
 			else {
-				if (i == radix - 1) {
+				if ((int64_t)i == radix - 1) {
 					if (sc->LUT) {
 						if (sc->useCoalescedLUTUploadToSM) {
 							appendSharedToRegisters(sc, &sc->w, &sc->stageInvocationID);
@@ -1490,7 +1490,7 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 
 			}
 			else {
-				if (i == radix - 1) {
+				if ((int64_t)i == radix - 1) {
 					if (sc->LUT) {
 						if (sc->useCoalescedLUTUploadToSM) {
 							appendSharedToRegisters(sc, &sc->w, &sc->stageInvocationID);
@@ -1701,7 +1701,7 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				PfMov(sc, &sc->locID[i], &regID[i]);
 			}
 			else {
-				if (i == radix - 1) {
+				if ((int64_t)i == radix - 1) {
 					if (sc->LUT) {
 						if (sc->useCoalescedLUTUploadToSM) {
 							appendSharedToRegisters(sc, &sc->w, &sc->stageInvocationID);
@@ -1842,7 +1842,7 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				
 			}
 			else {
-				if (i == radix - 1) {
+				if ((int64_t)i == radix - 1) {
 					if (sc->LUT) {
 						if (sc->useCoalescedLUTUploadToSM) {
 							appendSharedToRegisters(sc, &sc->w, &sc->stageInvocationID);
@@ -2039,7 +2039,7 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				
 			}
 			else {
-				if (i == radix - 1) {
+				if ((int64_t)i == radix - 1) {
 					if (sc->LUT) {
 						if (sc->useCoalescedLUTUploadToSM) {
 							appendSharedToRegisters(sc, &sc->w, &sc->stageInvocationID);

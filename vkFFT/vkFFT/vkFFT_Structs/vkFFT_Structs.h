@@ -146,41 +146,41 @@ typedef struct {
 	pfUINT* kernelSize;//array of kernel buffers sizes in bytes, if performConvolution is enabled
 
 #if(VKFFT_BACKEND==0)
-	VkBuffer* buffer;//pointer to array of buffers (or one buffer) used for computations
+	const VkBuffer* buffer;//pointer to array of buffers (or one buffer) used for computations
 	VkBuffer* tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same sum size or bigger as buffer (can be split in multiple). Default 0. Setting to non zero value enables manual user allocation
-	VkBuffer* inputBuffer;//pointer to array of input buffers (or one buffer) used to read data from if isInputFormatted is enabled
-	VkBuffer* outputBuffer;//pointer to array of output buffers (or one buffer) used for write data to if isOutputFormatted is enabled
-	VkBuffer* kernel;//pointer to array of kernel buffers (or one buffer) used for read kernel data from if performConvolution is enabled
+	const VkBuffer* inputBuffer;//pointer to array of input buffers (or one buffer) used to read data from if isInputFormatted is enabled
+	const VkBuffer* outputBuffer;//pointer to array of output buffers (or one buffer) used for write data to if isOutputFormatted is enabled
+	const VkBuffer* kernel;//pointer to array of kernel buffers (or one buffer) used for read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==1)
-	void** buffer;//pointer to array of buffers (or one buffer) used for computations
+	void* const* buffer;//pointer to array of buffers (or one buffer) used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Needs to be at least the same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
+	void* const* inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
+	void* const* outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
+	void* const* kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==2)
-	void** buffer;//pointer to array of buffers (or one buffer) used for computations
+	void* const* buffer;//pointer to array of buffers (or one buffer) used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Needs to be at least the same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
+	void* const* inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
+	void* const* outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
+	void* const* kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==3)
-	cl_mem* buffer;//pointer to array of buffers (or one buffer) used for computations
+	const cl_mem* buffer;//pointer to array of buffers (or one buffer) used for computations
 	cl_mem* tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Needs to be at least the same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	cl_mem* inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
-	cl_mem* outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
-	cl_mem* kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
+	const cl_mem* inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
+	const cl_mem* outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
+	const cl_mem* kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==4)
-	void** buffer;//pointer to array of buffers (or one buffer) used for computations
+	void* const* buffer;//pointer to array of buffers (or one buffer) used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Needs to be at least the same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
+	void* const* inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
+	void* const* outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
+	void* const* kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==5)
-	MTL::Buffer** buffer;//pointer to array of buffers (or one buffer) used for computations
+	MTL::Buffer* const* buffer;//pointer to array of buffers (or one buffer) used for computations
 	MTL::Buffer** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Needs to be at least the same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	MTL::Buffer** inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
-	MTL::Buffer** outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
-	MTL::Buffer** kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
+	MTL::Buffer* const* inputBuffer;//pointer to device buffers used to read data from if isInputFormatted is enabled
+	MTL::Buffer* const* outputBuffer;//pointer to device buffers used to read data from if isOutputFormatted is enabled
+	MTL::Buffer* const* kernel;//pointer to device buffers used to read kernel data from if performConvolution is enabled
 #endif
 	pfUINT specifyOffsetsAtLaunch;//specify if offsets will be selected with launch parameters VkFFTLaunchParams (0 - off, 1 - on). Default 0
 
@@ -344,48 +344,48 @@ typedef struct {
 #if(VKFFT_BACKEND==0)
 	VkCommandBuffer* commandBuffer;//commandBuffer to which FFT is appended
 
-	VkBuffer* buffer;//pointer to array of buffers (or one buffer) used for computations
+	const VkBuffer* buffer;//pointer to array of buffers (or one buffer) used for computations
 	VkBuffer* tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same sum size or bigger as buffer (can be split in multiple). Default 0. Setting to non zero value enables manual user allocation
-	VkBuffer* inputBuffer;//pointer to array of input buffers (or one buffer) used to read data from if isInputFormatted is enabled
-	VkBuffer* outputBuffer;//pointer to array of output buffers (or one buffer) used for write data to if isOutputFormatted is enabled
-	VkBuffer* kernel;//pointer to array of kernel buffers (or one buffer) used for read kernel data from if performConvolution is enabled
+	const VkBuffer* inputBuffer;//pointer to array of input buffers (or one buffer) used to read data from if isInputFormatted is enabled
+	const VkBuffer* outputBuffer;//pointer to array of output buffers (or one buffer) used for write data to if isOutputFormatted is enabled
+	const VkBuffer* kernel;//pointer to array of kernel buffers (or one buffer) used for read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==1)
-	void** buffer;//pointer to device buffer used for computations
+	void* const* buffer;//pointer to device buffer used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void* const* inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
+	void* const* outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
+	void* const* kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==2)
-	void** buffer;//pointer to device buffer used for computations
+	void* const* buffer;//pointer to device buffer used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void* const* inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
+	void* const* outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
+	void* const* kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==3)
 	cl_command_queue* commandQueue;//commandBuffer to which FFT is appended
 
-	cl_mem* buffer;//pointer to device buffer used for computations
+	const cl_mem* buffer;//pointer to device buffer used for computations
 	cl_mem* tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	cl_mem* inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	cl_mem* outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	cl_mem* kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	const cl_mem* inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
+	const cl_mem* outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
+	const cl_mem* kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==4)
 	ze_command_list_handle_t* commandList;//commandList to which FFT is appended
 
-	void** buffer;//pointer to device buffer used for computations
+	void* const* buffer;//pointer to device buffer used for computations
 	void** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same size as buffer. Default 0. Setting to non zero value enables manual user allocation
-	void** inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
-	void** outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
-	void** kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
+	void* const* inputBuffer;//pointer to device buffer used to read data from if isInputFormatted is enabled
+	void* const* outputBuffer;//pointer to device buffer used to read data from if isOutputFormatted is enabled
+	void* const* kernel;//pointer to device buffer used to read kernel data from if performConvolution is enabled
 #elif(VKFFT_BACKEND==5)
 	MTL::CommandBuffer* commandBuffer;//commandBuffer to which FFT is appended
 	MTL::ComputeCommandEncoder* commandEncoder;//encoder associated with commandBuffer
 
-	MTL::Buffer** buffer;//pointer to array of buffers (or one buffer) used for computations
+	MTL::Buffer* const* buffer;//pointer to array of buffers (or one buffer) used for computations
 	MTL::Buffer** tempBuffer;//needed if reorderFourStep is enabled to transpose the array. Same sum size or bigger as buffer (can be split in multiple). Default 0. Setting to non zero value enables manual user allocation
-	MTL::Buffer** inputBuffer;//pointer to array of input buffers (or one buffer) used to read data from if isInputFormatted is enabled
-	MTL::Buffer** outputBuffer;//pointer to array of output buffers (or one buffer) used for write data to if isOutputFormatted is enabled
-	MTL::Buffer** kernel;//pointer to array of kernel buffers (or one buffer) used for read kernel data from if performConvolution is enabled
+	MTL::Buffer* const* inputBuffer;//pointer to array of input buffers (or one buffer) used to read data from if isInputFormatted is enabled
+	MTL::Buffer* const* outputBuffer;//pointer to array of output buffers (or one buffer) used for write data to if isOutputFormatted is enabled
+	MTL::Buffer* const* kernel;//pointer to array of kernel buffers (or one buffer) used for read kernel data from if performConvolution is enabled
 #endif
 	//following parameters can be specified during kernels launch, if specifyOffsetsAtLaunch parameter was enabled during the initializeVkFFT call
 	pfUINT bufferOffset;//specify if VkFFT has to offset the first element position inside the buffer. In bytes. Default 0 
@@ -1083,9 +1083,9 @@ typedef struct {
 	pfUINT updatePushConstants;
 	char VkFFTFunctionName[50];
 #if(VKFFT_BACKEND==0)
-	VkBuffer* inputBuffer;
-	VkBuffer* outputBuffer;
-	VkBuffer* kernel;
+	const VkBuffer* inputBuffer;
+	const VkBuffer* outputBuffer;
+	const VkBuffer* kernel;
 	VkDescriptorPool descriptorPool;
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkDescriptorSet descriptorSet;
@@ -1100,9 +1100,9 @@ typedef struct {
 	VkBuffer* bufferBluestein;
 	VkBuffer* bufferBluesteinFFT;
 #elif(VKFFT_BACKEND==1)
-	void** inputBuffer;
-	void** outputBuffer;
-	void** kernel;
+	void* const* inputBuffer;
+	void* const* outputBuffer;
+	void* const* kernel;
 	CUmodule VkFFTModule;
 	CUfunction VkFFTKernel;
 	void* bufferLUT;
@@ -1111,9 +1111,9 @@ typedef struct {
 	void** bufferBluestein;
 	void** bufferBluesteinFFT;
 #elif(VKFFT_BACKEND==2)
-	void** inputBuffer;
-	void** outputBuffer;
-	void** kernel;
+	void* const* inputBuffer;
+	void* const* outputBuffer;
+	void* const* kernel;
 	hipModule_t VkFFTModule;
 	hipFunction_t VkFFTKernel;
 	void* bufferLUT;
@@ -1122,9 +1122,9 @@ typedef struct {
 	void** bufferBluestein;
 	void** bufferBluesteinFFT;
 #elif(VKFFT_BACKEND==3)
-	cl_mem* inputBuffer;
-	cl_mem* outputBuffer;
-	cl_mem* kernel;
+	const cl_mem* inputBuffer;
+	const cl_mem* outputBuffer;
+	const cl_mem* kernel;
 	cl_program  VkFFTProgram;
 	cl_kernel VkFFTKernel;
 	cl_mem bufferLUT;
@@ -1132,9 +1132,9 @@ typedef struct {
 	cl_mem* bufferBluestein;
 	cl_mem* bufferBluesteinFFT;
 #elif(VKFFT_BACKEND==4)
-	void** inputBuffer;
-	void** outputBuffer;
-	void** kernel;
+	void* const* inputBuffer;
+	void* const* outputBuffer;
+	void* const* kernel;
 	ze_module_handle_t VkFFTModule;
 	ze_kernel_handle_t VkFFTKernel;
 	void* bufferLUT;
@@ -1142,9 +1142,9 @@ typedef struct {
 	void** bufferBluestein;
 	void** bufferBluesteinFFT;
 #elif(VKFFT_BACKEND==5)
-	MTL::Buffer** inputBuffer;
-	MTL::Buffer** outputBuffer;
-	MTL::Buffer** kernel;
+	MTL::Buffer* const* inputBuffer;
+	MTL::Buffer* const* outputBuffer;
+	MTL::Buffer* const* kernel;
 	MTL::Library* library;
 	MTL::ComputePipelineState* pipeline;
 	MTL::Buffer* bufferLUT;

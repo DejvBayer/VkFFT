@@ -245,8 +245,8 @@ static inline VkFFTResult VkFFTGeneratePhaseVectors(VkFFTApplication* app, VkFFT
 		kernelPreparationConfiguration.size[1] = 1;
 		kernelPreparationConfiguration.size[2] = 1;
 		kernelPreparationConfiguration.coalescedMemory = app->configuration.coalescedMemory;
-		kernelPreparationConfiguration.doublePrecision = (app->configuration.doublePrecision || app->configuration.doublePrecisionFloatMemory);
-		kernelPreparationConfiguration.quadDoubleDoublePrecision = (app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory);
+		kernelPreparationConfiguration.doublePrecision = (app->configuration.doublePrecision | app->configuration.doublePrecisionFloatMemory);
+		kernelPreparationConfiguration.quadDoubleDoublePrecision = (app->configuration.quadDoubleDoublePrecision | app->configuration.quadDoubleDoublePrecisionDoubleMemory);
 		kernelPreparationConfiguration.useLUT = 1;
 		kernelPreparationConfiguration.useLUT_4step = 1;
 		kernelPreparationConfiguration.registerBoost = 1;
@@ -1111,8 +1111,8 @@ static inline VkFFTResult VkFFTGenerateRaderFFTKernel(VkFFTApplication* app, VkF
 				kernelPreparationConfiguration.size[0] = axis->specializationConstants.raderContainer[i].prime - 1;
 				kernelPreparationConfiguration.size[1] = 1;
 				kernelPreparationConfiguration.size[2] = 1;
-				kernelPreparationConfiguration.doublePrecision = (app->configuration.doublePrecision || app->configuration.doublePrecisionFloatMemory);
-				kernelPreparationConfiguration.quadDoubleDoublePrecision = (app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory);
+				kernelPreparationConfiguration.doublePrecision = (app->configuration.doublePrecision | app->configuration.doublePrecisionFloatMemory);
+				kernelPreparationConfiguration.quadDoubleDoublePrecision = (app->configuration.quadDoubleDoublePrecision | app->configuration.quadDoubleDoublePrecisionDoubleMemory);
 				kernelPreparationConfiguration.useLUT = 1;
 				kernelPreparationConfiguration.fixMinRaderPrimeFFT = 17;
 				kernelPreparationConfiguration.fixMinRaderPrimeMult = 17;
