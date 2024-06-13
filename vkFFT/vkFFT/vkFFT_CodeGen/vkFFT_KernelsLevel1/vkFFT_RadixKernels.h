@@ -44,7 +44,8 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);		
+			//PfMov(sc, &sc->w, &temp_complex);
+			PfMov(sc, &sc->temp, &regID[1]);
 		}
 		else {
 			if (sc->LUT) {
@@ -61,8 +62,8 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 			else {
 				PfSinCos(sc, &sc->w, &sc->angle);
 			}
+			PfMul(sc, &sc->temp, &regID[1], &sc->w, 0);
 		}
-		PfMul(sc, &sc->temp, &regID[1], &sc->w, 0);
 
 		PfSub(sc, &regID[1], &regID[0], &sc->temp);
 
@@ -83,7 +84,8 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);		
+			//PfMov(sc, &sc->w, &temp_complex);
+			PfMov(sc, &sc->locID[2], &regID[2]);
 		}
 		else {
 			if (sc->LUT) {
@@ -102,12 +104,13 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			PfMul(sc, &sc->locID[2], &regID[2], &sc->w, 0);
 		}
-		PfMul(sc, &sc->locID[2], &regID[2], &sc->w, 0);
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);		
+			//PfMov(sc, &sc->w, &temp_complex);	
+			PfMov(sc, &sc->locID[1], &regID[1]);
 		}
 		else {
 			if (sc->LUT) {
@@ -133,8 +136,8 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			PfMul(sc, &sc->locID[1], &regID[1], &sc->w, 0);
 		}
-		PfMul(sc, &sc->locID[1], &regID[1], &sc->w, 0);
 		
 		PfAdd(sc, &regID[1], &sc->locID[1], &sc->locID[2]);
 		
@@ -164,20 +167,22 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 
 		break;
 	}
-	case 4: {
-		/*if (&sc->LUT)
-			&sc->tempLen = sprintf(&sc->tempStr, "void radix4(inout %s temp_0, inout %s temp_1, inout %s temp_2, inout %s temp_3, %s LUTId%s) {\n", vecType, vecType, vecType, vecType, uintType, convolutionInverse);
-		else
-			&sc->tempLen = sprintf(&sc->tempStr, "void radix4(inout %s temp_0, inout %s temp_1, inout %s temp_2, inout %s temp_3, %s angle%s) {\n", vecType, vecType, vecType, vecType, floatType, convolutionInverse);
-		*/
-		//PfAppendLine(sc, "	{\n");
-		//&sc->tempLen = sprintf(&sc->tempStr, "	%s %s;\n", vecType, &sc->temp);
-		//		
+	case 4: {	
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
-			
+			//PfMov(sc, &sc->w, &temp_complex);	
+			PfMov(sc, &sc->temp, &regID[2]);
+		
+			PfSub(sc, &regID[2], &regID[0], &sc->temp);
+		
+			PfAdd(sc, &regID[0], &regID[0], &sc->temp);
+		
+			PfMov(sc, &sc->temp, &regID[3]);
+		
+			PfSub(sc, &regID[3], &regID[1], &sc->temp);
+		
+			PfAdd(sc, &regID[1], &regID[1], &sc->temp);
 		}
 		else {
 			if (sc->LUT) {
@@ -197,34 +202,24 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 			else {
 				PfSinCos(sc, &sc->w, &sc->angle);
 			}
+			PfMul(sc, &sc->temp, &regID[2], &sc->w, 0);
+		
+			PfSub(sc, &regID[2], &regID[0], &sc->temp);
+		
+			PfAdd(sc, &regID[0], &regID[0], &sc->temp);
+		
+			PfMul(sc, &sc->temp, &regID[3], &sc->w, 0);
+		
+			PfSub(sc, &regID[3], &regID[1], &sc->temp);
+		
+			PfAdd(sc, &regID[1], &regID[1], &sc->temp);
 		}
-		PfMul(sc, &sc->temp, &regID[2], &sc->w, 0);
 		
-		PfSub(sc, &regID[2], &regID[0], &sc->temp);
-		
-		PfAdd(sc, &regID[0], &regID[0], &sc->temp);
-		
-		PfMul(sc, &sc->temp, &regID[3], &sc->w, 0);
-		
-		PfSub(sc, &regID[3], &regID[1], &sc->temp);
-		
-		PfAdd(sc, &regID[1], &regID[1], &sc->temp);
-		
-		/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp.x=temp%s.x*w.x-temp%s.y*w.y;\n\
-temp.y = temp%s.y * w.x + temp%s.x * w.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n\
-temp.x=temp%s.x*w.x-temp%s.y*w.y;\n\
-temp.y = temp%s.y * w.x + temp%s.x * w.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n\
-//DIF 2nd stage with angle\n", &regID[2], &regID[2], &regID[2], &regID[2], &regID[2], &regID[0], &regID[0], &regID[0], &regID[3], &regID[3], &regID[3], &regID[3], &regID[3], &regID[1], &regID[1], &regID[1]);*/
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
-			
+			//PfMov(sc, &sc->w, &temp_complex);	
+			PfMov(sc, &sc->temp, &regID[1]);
 		}
 		else {
 			if (sc->LUT) {
@@ -250,70 +245,60 @@ temp%s = temp%s + temp;\n\n\
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 				
 			}
+			PfMul(sc, &sc->temp, &regID[1], &sc->w, 0);
 		}
-		PfMul(sc, &sc->temp, &regID[1], &sc->w, 0);
 		
 		PfSub(sc, &regID[1], &regID[0], &sc->temp);
 		
 		PfAdd(sc, &regID[0], &regID[0], &sc->temp);
-		
-		/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp.x = temp%s.x * w.x - temp%s.y * w.y;\n\
-temp.y = temp%s.y * w.x + temp%s.x * w.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n", &regID[1], &regID[1], &regID[1], &regID[1], &regID[1], &regID[0], &regID[0], &regID[0]);*/
-		if (stageAngle < 0) {
-			PfMov(sc, &sc->temp.data.c[0], &sc->w.data.c[0]);
-			
-			PfMov(sc, &sc->w.data.c[0], &sc->w.data.c[1]);
-			PfMovNeg(sc, &sc->w.data.c[1], &sc->temp.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+		if (stageSize == 1) {
+			if (stageAngle < 0) {
+				PfMov(sc, &sc->temp.data.c[0], &regID[3].data.c[1]);
+
+				PfMovNeg(sc, &sc->temp.data.c[1], &regID[3].data.c[0]);
+			}
+			else {
+				PfMovNeg(sc, &sc->temp.data.c[0], &regID[3].data.c[1]);
+
+				PfMov(sc, &sc->temp.data.c[1], &regID[3].data.c[0]);
+			}
+			//PfMul(sc, &sc->temp, &regID[3], &sc->w, 0);
+
+			PfSub(sc, &regID[3], &regID[2], &sc->temp);
+
+			PfAdd(sc, &regID[2], &regID[2], &sc->temp);
 		}
 		else {
-			PfMov(sc, &sc->temp.data.c[0], &sc->w.data.c[0]);
-			
-			PfMovNeg(sc, &sc->w.data.c[0], &sc->w.data.c[1]);
-			PfMov(sc, &sc->w.data.c[1], &sc->temp.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(-w.y, w.x);\n\n", vecType);
+			if (stageAngle < 0) {
+				PfMov(sc, &sc->temp.data.c[0], &sc->w.data.c[0]);
+
+				PfMov(sc, &sc->w.data.c[0], &sc->w.data.c[1]);
+				PfMovNeg(sc, &sc->w.data.c[1], &sc->temp.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			}
+			else {
+				PfMov(sc, &sc->temp.data.c[0], &sc->w.data.c[0]);
+
+				PfMovNeg(sc, &sc->w.data.c[0], &sc->w.data.c[1]);
+				PfMov(sc, &sc->w.data.c[1], &sc->temp.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(-w.y, w.x);\n\n", vecType);
+			}
+			PfMul(sc, &sc->temp, &regID[3], &sc->w, 0);
+
+			PfSub(sc, &regID[3], &regID[2], &sc->temp);
+
+			PfAdd(sc, &regID[2], &regID[2], &sc->temp);
 		}
-		PfMul(sc, &sc->temp, &regID[3], &sc->w, 0);
-		
-		PfSub(sc, &regID[3], &regID[2], &sc->temp);
-		
-		PfAdd(sc, &regID[2], &regID[2], &sc->temp);
-		
 		//PfMov(sc, &sc->temp, &regID[1]);
 		//
 
 		pfUINT permute2[4] = { 0,2,1,3 };
 		PfPermute(sc, permute2, 4, 1, regID, &sc->temp);
-		
-
-		/*PfMov(sc, &regID[1], &regID[2]);
-		
-		PfMov(sc, &regID[2], &sc->temp);
-		*/
-		/*PfAppendLine(sc, "	}\n");
-		&sc->tempLen = sprintf(&sc->tempStr, "\
-temp.x = temp%s.x * w.x - temp%s.y * w.y;\n\
-temp.y = temp%s.y * w.x + temp%s.x * w.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n\
-temp = temp%s;\n\
-temp%s = temp%s;\n\
-temp%s = temp;\n\
-}\n", &regID[3], &regID[3], &regID[3], &regID[3], &regID[3], &regID[2], &regID[2], &regID[2], &regID[1], &regID[1], &regID[2], &regID[2]);*/
 		break;
 	}
 	case 5: {
-		/*if (sc->LUT) {
-			&sc->tempLen = sprintf(&sc->tempStr, "void radix5(inout %s temp_0, inout %s temp_1, inout %s temp_2, inout %s temp_3, inout %s temp_4, %s LUTId) {\n", vecType, vecType, vecType, vecType, vecType, uintType);
-		}
-		else {
-			&sc->tempLen = sprintf(&sc->tempStr, "void radix5(inout %s temp_0, inout %s temp_1, inout %s temp_2, inout %s temp_3, inout %s temp_4, %s angle) {\n", vecType, vecType, vecType, vecType, vecType, floatType);
-		}*/
 		PfContainer tf[5] = VKFFT_ZERO_INIT;
 		for (pfINT i = 0; i < 5; i++){
 			tf[i].type = 22;
@@ -324,21 +309,12 @@ temp%s = temp;\n\
 		tf[3].data.d = pfFPinit("-0.809016994374947424102293417182819");
 		tf[4].data.d = pfFPinit("-0.587785252292473129168705954639073");
 
-		/*for (pfUINT i = 0; i < 5; i++) {
-			&sc->locID[i], (char*)malloc(sizeof(char) * 50);
-			sprintf(&sc->locID[i], loc_%" PRIu64 "", i);
-			&sc->tempLen = sprintf(&sc->tempStr, "	%s %s;\n", vecType, &sc->locID[i]);
-			
-			}*/
-			/*&sc->tempLen = sprintf(&sc->tempStr, "	{\n\
-	%s loc_0;\n	%s loc_1;\n	%s loc_2;\n	%s loc_3;\n	%s loc_4;\n", vecType, vecType, vecType, vecType, vecType);*/
-
 		for (pfUINT i = radix - 1; i > 0; i--) {
 			if (stageSize == 1) {
 				temp_complex.data.c[0].data.d = pfFPinit("1.0");
 				temp_complex.data.c[1].data.d = pfFPinit("0.0");
-				PfMov(sc, &sc->w, &temp_complex);	
-				
+				//PfMov(sc, &sc->w, &temp_complex);	
+				PfMov(sc, &sc->locID[i], &regID[i]);
 			}
 			else {
 				if (i == radix - 1) {
@@ -386,12 +362,9 @@ temp%s = temp;\n\
 						PfSinCos(sc, &sc->w, &sc->tempFloat);
 					}
 				}
+				PfMul(sc, &sc->locID[i], &regID[i], &sc->w, 0);
 			}
-			PfMul(sc, &sc->locID[i], &regID[i], &sc->w, 0);
 			
-			/*&sc->tempLen = sprintf(&sc->tempStr, "\
-loc_%" PRIu64 ".x = temp%s.x * w.x - temp%s.y * w.y;\n\
-loc_%" PRIu64 ".y = temp%s.y * w.x + temp%s.x * w.y;\n", i, &regID[i], &regID[i], i, &regID[i], &regID[i]);*/
 		}
 		PfAdd(sc, &regID[1], &sc->locID[1], &sc->locID[4]);
 		
@@ -405,13 +378,6 @@ loc_%" PRIu64 ".y = temp%s.y * w.x + temp%s.x * w.y;\n", i, &regID[i], &regID[i]
 		
 		PfAdd(sc, &sc->locID[4], &regID[3], &regID[4]);
 		
-		/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp%s = loc_1 + loc_4;\n\
-temp%s = loc_2 + loc_3;\n\
-temp%s = loc_2 - loc_3;\n\
-temp%s = loc_1 - loc_4;\n\
-loc_3 = temp%s - temp%s;\n\
-loc_4 = temp%s + temp%s;\n", &regID[1], &regID[2], &regID[3], &regID[4], &regID[1], &regID[2], &regID[3], &regID[4]);*/
 		PfAdd(sc, &sc->locID[0], &regID[0], &regID[1]);
 		
 		PfAdd(sc, &sc->locID[0], &sc->locID[0], &regID[2]);
@@ -428,14 +394,6 @@ loc_4 = temp%s + temp%s;\n", &regID[1], &regID[2], &regID[3], &regID[4], &regID[
 		
 		PfMul(sc, &sc->locID[4], &sc->locID[4], &tf[4], &regID[0]);
 		
-		/*&sc->tempLen = sprintf(&sc->tempStr, "\
-loc_0 = temp%s + temp%s + temp%s;\n\
-loc_1 = temp%s - 0.5 * temp%s;\n\
-loc_2 = temp%s - 0.5 * temp%s;\n\
-temp%s *= 1.538841768587626701285145288018455;\n\
-temp%s *= -0.363271264002680442947733378740309;\n\
-loc_3 *= -0.809016994374947424102293417182819;\n\
-loc_4 *= -0.587785252292473129168705954639073;\n", &regID[0], &regID[1], &regID[2], &regID[0], &regID[1], &regID[0], &regID[2], &regID[3], &regID[4]);*/
 		PfSub(sc, &sc->locID[1], &sc->locID[1], &sc->locID[3]);
 		
 		PfAdd(sc, &sc->locID[2], &sc->locID[2], &sc->locID[3]);
@@ -446,13 +404,6 @@ loc_4 *= -0.587785252292473129168705954639073;\n", &regID[0], &regID[1], &regID[
 		
 		PfMov(sc, &regID[0], &sc->locID[0]);
 		
-		/*&sc->tempLen = sprintf(&sc->tempStr, "\
-loc_1 -= loc_3;\n\
-loc_2 += loc_3;\n\
-loc_3 = temp%s+loc_4;\n\
-loc_4 += temp%s;\n\
-temp%s = loc_0;\n", &regID[3], &regID[4], &regID[0]);*/
-
 		if (stageAngle < 0)
 		{
 			PfShuffleComplex(sc, &regID[1], &sc->locID[1], &sc->locID[4], &sc->locID[0]);
@@ -463,15 +414,6 @@ temp%s = loc_0;\n", &regID[3], &regID[4], &regID[0]);*/
 			
 			PfShuffleComplexInv(sc, &regID[4], &sc->locID[1], &sc->locID[4], &sc->locID[0]);
 			
-			/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp%s.x = loc_1.x - loc_4.y; \n\
-temp%s.y = loc_1.y + loc_4.x; \n\
-temp%s.x = loc_2.x - loc_3.y; \n\
-temp%s.y = loc_2.y + loc_3.x; \n\
-temp%s.x = loc_2.x + loc_3.y; \n\
-temp%s.y = loc_2.y - loc_3.x; \n\
-temp%s.x = loc_1.x + loc_4.y; \n\
-temp%s.y = loc_1.y - loc_4.x; \n", &regID[1], &regID[1], &regID[2], &regID[2], &regID[3], &regID[3], &regID[4], &regID[4]);*/
 		}
 		else {
 			PfShuffleComplexInv(sc, &regID[1], &sc->locID[1], &sc->locID[4], &sc->locID[0]);
@@ -482,18 +424,8 @@ temp%s.y = loc_1.y - loc_4.x; \n", &regID[1], &regID[1], &regID[2], &regID[2], &
 			
 			PfShuffleComplex(sc, &regID[4], &sc->locID[1], &sc->locID[4], &sc->locID[0]);
 			
-			/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp%s.x = loc_1.x + loc_4.y; \n\
-temp%s.y = loc_1.y - loc_4.x; \n\
-temp%s.x = loc_2.x + loc_3.y; \n\
-temp%s.y = loc_2.y - loc_3.x; \n\
-temp%s.x = loc_2.x - loc_3.y; \n\
-temp%s.y = loc_2.y + loc_3.x; \n\
-temp%s.x = loc_1.x - loc_4.y; \n\
-temp%s.y = loc_1.y + loc_4.x; \n", &regID[1], &regID[1], &regID[2], &regID[2], &regID[3], &regID[3], &regID[4], &regID[4]);*/
 		}
 
-		//PfAppendLine(sc, "	}\n");
 		break;
 	}
 	case 6: {
@@ -501,17 +433,14 @@ temp%s.y = loc_1.y + loc_4.x; \n", &regID[1], &regID[1], &regID[2], &regID[2], &
 		for (pfINT i = 0; i < 2; i++){
 			tf[i].type = 22;
 		}
-		//PfAppendLine(sc, "	{\n");
 		
-
 		tf[0].data.d = pfFPinit("-0.5");
 		tf[1].data.d = pfFPinit("-0.8660254037844386467637231707529361834714");
 		for (pfUINT i = radix - 1; i > 0; i--) {
 			if (stageSize == 1) {
 				temp_complex.data.c[0].data.d = pfFPinit("1.0");
 				temp_complex.data.c[1].data.d = pfFPinit("0.0");
-				PfMov(sc, &sc->w, &temp_complex);	
-				
+				//PfMov(sc, &sc->w, &temp_complex);	
 			}
 			else {
 				if (i == radix - 1) {
@@ -559,8 +488,8 @@ temp%s.y = loc_1.y + loc_4.x; \n", &regID[1], &regID[1], &regID[2], &regID[2], &
 						PfSinCos(sc, &sc->w, &sc->tempFloat);
 					}
 				}
+				PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			}
-			PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			
 		}
 		//important
@@ -643,21 +572,7 @@ temp%s.y = loc_1.y + loc_4.x; \n", &regID[1], &regID[1], &regID[2], &regID[2], &
 
 		pfUINT permute2[6] = { 0,3,4,1,2,5 };
 		PfPermute(sc, permute2, 6, 1, regID, &sc->temp);
-		
 
-		/*PfMov(sc, &sc->temp, &regID[1]);
-		
-		PfMov(sc, &regID[1], &regID[3]);
-		
-		PfMov(sc, &regID[3], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[2]);
-		
-		PfMov(sc, &regID[2], &regID[4]);
-		
-		PfMov(sc, &regID[4], &sc->temp);
-		*/
 		break;
 	}
 	case 7: {
@@ -694,8 +609,8 @@ temp%s.y = loc_1.y + loc_4.x; \n", &regID[1], &regID[1], &regID[2], &regID[2], &
 			if (stageSize == 1) {
 				temp_complex.data.c[0].data.d = pfFPinit("1.0");
 				temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
-				
+				//PfMov(sc, &sc->w, &temp_complex);	
+				PfMov(sc, &sc->locID[i], &regID[i]);
 			}
 			else {
 				if (i == radix - 1) {
@@ -743,8 +658,8 @@ temp%s.y = loc_1.y + loc_4.x; \n", &regID[1], &regID[1], &regID[2], &regID[2], &
 						PfSinCos(sc, &sc->w, &sc->tempFloat);
 					}
 				}
+				PfMul(sc, &sc->locID[i], &regID[i], &sc->w, 0);
 			}
-			PfMul(sc, &sc->locID[i], &regID[i], &sc->w, 0);
 			
 		}
 		PfMov(sc, &sc->locID[0], &regID[0]);
@@ -800,21 +715,18 @@ temp%s.y = loc_1.y + loc_4.x; \n", &regID[1], &regID[1], &regID[2], &regID[2], &
 		break;
 	}
 	case 8: {
-		/*if (&sc->LUT)
-			&sc->tempLen = sprintf(&sc->tempStr, "void radix8(inout %s temp_0, inout %s temp_1, inout %s temp_2, inout %s temp_3, inout %s temp_4, inout %s temp_5, inout %s temp_6, inout %s temp_7, %s LUTId%s) {\n", vecType, vecType, vecType, vecType, vecType, vecType, vecType, vecType, uintType, convolutionInverse);
-		else
-			&sc->tempLen = sprintf(&sc->tempStr, "void radix8(inout %s temp_0, inout %s temp_1, inout %s temp_2, inout %s temp_3, inout %s temp_4, inout %s temp_5, inout %s temp_6, inout %s temp_7, %s angle%s) {\n", vecType, vecType, vecType, vecType, vecType, vecType, vecType, vecType, floatType, convolutionInverse);
-		*/
-		//PfAppendLine(sc, "	{\n");
-		/*&sc->tempLen = sprintf(&sc->tempStr, "	%s %s;\n", vecType, &sc->temp);
-		
-			&sc->tempLen = sprintf(&sc->tempStr, "	%s %s;\n", vecType, iw);
-			*/
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 4; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 4]);
 			
+				PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -834,25 +746,27 @@ temp%s.y = loc_1.y + loc_4.x; \n", &regID[1], &regID[1], &regID[2], &regID[2], &
 			else {
 				PfSinCos(sc, &sc->w, &sc->angle);
 			}
-		}
-		for (pfUINT i = 0; i < 4; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 4], &sc->w, 0);
+			for (pfUINT i = 0; i < 4; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 4], &sc->w, 0);
 			
-			PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
+				PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
 			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
 			
-			/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp.x=temp%s.x*w.x-temp%s.y*w.y;\n\
-temp.y = temp%s.y * w.x + temp%s.x * w.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n", &regID[i + 4], &regID[i + 4], &regID[i + 4], &regID[i + 4], &regID[i + 4], &regID[i + 0], &regID[i + 0], &regID[i + 0]);*/
+			}
 		}
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 2; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 2]);
 			
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -877,53 +791,64 @@ temp%s = temp%s + temp;\n\n", &regID[i + 4], &regID[i + 4], &regID[i + 4], &regI
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			for (pfUINT i = 0; i < 2; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 2], &sc->w, 0);
+			
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
-		for (pfUINT i = 0; i < 2; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 2], &sc->w, 0);
-			
-			PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-			/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp.x=temp%s.x*w.x-temp%s.y*w.y;\n\
-temp.y = temp%s.y * w.x + temp%s.x * w.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n", &regID[i + 2], &regID[i + 2], &regID[i + 2], &regID[i + 2], &regID[i + 2], &regID[i + 0], &regID[i + 0], &regID[i + 0]);*/
-		}
-		if (stageAngle < 0) {
-			
-			PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+		if (stageSize == 1) {
+			for (pfUINT i = 4; i < 6; i++) {
+				if (stageAngle < 0) {
+
+					PfMov(sc, &sc->temp.data.c[0], &regID[i + 2].data.c[1]);
+					PfMovNeg(sc, &sc->temp.data.c[1], &regID[i + 2].data.c[0]);
+				}
+				else {
+
+					PfMovNeg(sc, &sc->temp.data.c[0], &regID[i + 2].data.c[1]);
+					PfMov(sc, &sc->temp.data.c[1], &regID[i + 2].data.c[0]);
+				}
+				
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		else {
-			
-			PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
-		}
+			if (stageAngle < 0) {
 
-		for (pfUINT i = 4; i < 6; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 2], &sc->iw, 0);
-			
-			PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-			/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp.x = temp%s.x * iw.x - temp%s.y * iw.y;\n\
-temp.y = temp%s.y * iw.x + temp%s.x * iw.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n", &regID[i + 2], &regID[i + 2], &regID[i + 2], &regID[i + 2], &regID[i + 2], &regID[i + 0], &regID[i + 0], &regID[i + 0]);*/
+				PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			}
+			else {
+
+				PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+			}
+
+			for (pfUINT i = 4; i < 6; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 2], &sc->iw, 0);
+
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
-			
+			//PfMov(sc, &sc->w, &temp_complex);	
+			PfMov(sc, &sc->temp, &regID[1]);
 		}
 		else {
 			if (sc->LUT) {
@@ -948,115 +873,89 @@ temp%s = temp%s + temp;\n\n", &regID[i + 2], &regID[i + 2], &regID[i + 2], &regI
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			PfMul(sc, &sc->temp, &regID[1], &sc->w, 0);
 		}
-		PfMul(sc, &sc->temp, &regID[1], &sc->w, 0);
 		
 		PfSub(sc, &regID[1], &regID[0], &sc->temp);
 		
 		PfAdd(sc, &regID[0], &regID[0], &sc->temp);
 		
-		/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp.x=temp%s.x*w.x-temp%s.y*w.y;\n\
-temp.y = temp%s.y * w.x + temp%s.x * w.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n", &regID[1], &regID[1], &regID[1], &regID[1], &regID[1], &regID[0], &regID[0], &regID[0]);*/
-		if (stageAngle < 0) {
+		if (stageSize == 1) {
+			if (stageAngle < 0) {
+				PfMov(sc, &sc->temp.data.c[0], &regID[3].data.c[1]);
+
+				PfMovNeg(sc, &sc->temp.data.c[1], &regID[3].data.c[0]);
+			}
+			else {
+				PfMovNeg(sc, &sc->temp.data.c[0], &regID[3].data.c[1]);
+
+				PfMov(sc, &sc->temp.data.c[1], &regID[3].data.c[0]);
+			}
 			
-			PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			PfSub(sc, &regID[3], &regID[2], &sc->temp);
+
+			PfAdd(sc, &regID[2], &regID[2], &sc->temp);
 		}
 		else {
-			PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+			if (stageAngle < 0) {
+
+				PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			}
+			else {
+				PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+			}
+			PfMul(sc, &sc->temp, &regID[3], &sc->iw, 0);
+
+			PfSub(sc, &regID[3], &regID[2], &sc->temp);
+
+			PfAdd(sc, &regID[2], &regID[2], &sc->temp);
 		}
-		PfMul(sc, &sc->temp, &regID[3], &sc->iw, 0);
-		
-		PfSub(sc, &regID[3], &regID[2], &sc->temp);
-		
-		PfAdd(sc, &regID[2], &regID[2], &sc->temp);
-		
-		/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp.x = temp%s.x * iw.x - temp%s.y * iw.y;\n\
-temp.y = temp%s.y * iw.x + temp%s.x * iw.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n", &regID[3], &regID[3], &regID[3], &regID[3], &regID[3], &regID[2], &regID[2], &regID[2]);*/
 		if (stageAngle < 0) {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("-0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
-		
 		}
 		else {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		}
+		if (stageSize == 1)
+			PfMov(sc, &sc->iw, &temp_complex);
+		else
+			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		PfMul(sc, &sc->temp, &regID[5], &sc->iw, 0);
 		
 		PfSub(sc, &regID[5], &regID[4], &sc->temp);
 		
 		PfAdd(sc, &regID[4], &regID[4], &sc->temp);
 		
-		/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp.x = temp%s.x * iw.x - temp%s.y * iw.y;\n\
-temp.y = temp%s.y * iw.x + temp%s.x * iw.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n", &regID[5], &regID[5], &regID[5], &regID[5], &regID[5], &regID[4], &regID[4], &regID[4]);*/
 		if (stageAngle < 0) {
 			PfMov(sc, &sc->w.data.c[0], &sc->iw.data.c[1]);
 			PfMovNeg(sc, &sc->w.data.c[1], &sc->iw.data.c[0]);
-			
+
 			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(iw.y, -iw.x);\n\n", vecType);
 		}
 		else {
 			PfMovNeg(sc, &sc->w.data.c[0], &sc->iw.data.c[1]);
 			PfMov(sc, &sc->w.data.c[1], &sc->iw.data.c[0]);
-			
+
 			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(-iw.y, iw.x);\n\n", vecType);
 		}
 		PfMul(sc, &sc->temp, &regID[7], &sc->w, 0);
-		
+
 		PfSub(sc, &regID[7], &regID[6], &sc->temp);
-		
+
 		PfAdd(sc, &regID[6], &regID[6], &sc->temp);
-		
 
 		pfUINT permute2[8] = { 0,4,2,6,1,5,3,7 };
 		PfPermute(sc, permute2, 8, 1, regID, &sc->temp);
 		
-		/*
-		
-		PfMov(sc, &sc->temp, &regID[1]);
-		
-		PfMov(sc, &regID[1], &regID[4]);
-		
-		PfMov(sc, &regID[4], &sc->temp);
-		
-		PfMov(sc, &sc->temp, &regID[3]);
-		
-		PfMov(sc, &regID[3], &regID[6]);
-		
-		PfMov(sc, &regID[6], &sc->temp);
-		*/
-		/*&sc->tempLen = sprintf(&sc->tempStr, "\
-temp.x = temp%s.x * w.x - temp%s.y * w.y;\n\
-temp.y = temp%s.y * w.x + temp%s.x * w.y;\n\
-temp%s = temp%s - temp;\n\
-temp%s = temp%s + temp;\n\n\
-temp = temp%s;\n\
-temp%s = temp%s;\n\
-temp%s = temp;\n\n\
-temp = temp%s;\n\
-temp%s = temp%s;\n\
-temp%s = temp;\n\
-}\n\n", &regID[7], &regID[7], &regID[7], &regID[7], &regID[7], &regID[6], &regID[6], &regID[6], &regID[1], &regID[1], &regID[4], &regID[4], &regID[3], &regID[3], &regID[6], &regID[6]);
-			//PfAppendLine(sc, "	}\n");*/
-
 		break;
 	}
 	case 9: {
@@ -1072,7 +971,7 @@ temp%s = temp;\n\
 			if (stageSize == 1) {
 				temp_complex.data.c[0].data.d = pfFPinit("1.0");
 				temp_complex.data.c[1].data.d = pfFPinit("0.0");
-				PfMov(sc, &sc->w, &temp_complex);	
+				//PfMov(sc, &sc->w, &temp_complex);	
 				
 			}
 			else {
@@ -1121,8 +1020,8 @@ temp%s = temp;\n\
 						PfSinCos(sc, &sc->w, &sc->tempFloat);
 					}
 				}
+				PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			}
-			PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			
 		}
 		//important
@@ -1237,20 +1136,6 @@ temp%s = temp;\n\
 		pfUINT permute2[9] = { 0,3,6,1,4,7,2,5,8 };
 		PfPermute(sc, permute2, 9, 1, regID, &sc->temp);
 		
-
-		/*PfMov(sc, &sc->temp, &regID[1]);
-		
-		PfMov(sc, &regID[1], &regID[3]);
-		
-		PfMov(sc, &regID[3], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[2]);
-		
-		PfMov(sc, &regID[2], &regID[4]);
-		
-		PfMov(sc, &regID[4], &sc->temp);
-		*/
 		break;
 	}
 	case 10: {
@@ -1269,7 +1154,7 @@ temp%s = temp;\n\
 			if (stageSize == 1) {
 				temp_complex.data.c[0].data.d = pfFPinit("1.0");
 				temp_complex.data.c[1].data.d = pfFPinit("0.0");
-				PfMov(sc, &sc->w, &temp_complex);	
+				//PfMov(sc, &sc->w, &temp_complex);	
 				
 			}
 			else {
@@ -1318,8 +1203,8 @@ temp%s = temp;\n\
 						PfSinCos(sc, &sc->w, &sc->tempFloat);
 					}
 				}
+				PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			}
-			PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			
 		}
 		//important
@@ -1482,8 +1367,8 @@ temp%s = temp;\n\
 			if (stageSize == 1) {
 				temp_complex.data.c[0].data.d = pfFPinit("1.0");
 				temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
-				
+				//PfMov(sc, &sc->w, &temp_complex);	
+				PfMov(sc, &sc->locID[i], &regID[i]);
 			}
 			else {
 				if (i == radix - 1) {
@@ -1531,8 +1416,8 @@ temp%s = temp;\n\
 						PfSinCos(sc, &sc->w, &sc->tempFloat);
 					}
 				}
+				PfMul(sc, &sc->locID[i], &regID[i], &sc->w, 0);
 			}
-			PfMul(sc, &sc->locID[i], &regID[i], &sc->w, 0);
 			
 		}
 		PfMov(sc, &sc->locID[0], &regID[0]);
@@ -1601,7 +1486,7 @@ temp%s = temp;\n\
 			if (stageSize == 1) {
 				temp_complex.data.c[0].data.d = pfFPinit("1.0");
 				temp_complex.data.c[1].data.d = pfFPinit("0.0");
-				PfMov(sc, &sc->w, &temp_complex);	
+				//PfMov(sc, &sc->w, &temp_complex);	
 
 			}
 			else {
@@ -1650,8 +1535,8 @@ temp%s = temp;\n\
 						PfSinCos(sc, &sc->w, &sc->tempFloat);
 					}
 				}
+				PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			}
-			PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			
 		}
 		//important
@@ -1812,8 +1697,8 @@ temp%s = temp;\n\
 			if (stageSize == 1) {
 				temp_complex.data.c[0].data.d = pfFPinit("1.0");
 				temp_complex.data.c[1].data.d = pfFPinit("0.0");
-				PfMov(sc, &sc->w, &temp_complex);	
-				
+				//PfMov(sc, &sc->w, &temp_complex);	
+				PfMov(sc, &sc->locID[i], &regID[i]);
 			}
 			else {
 				if (i == radix - 1) {
@@ -1861,8 +1746,8 @@ temp%s = temp;\n\
 						PfSinCos(sc, &sc->w, &sc->tempFloat);
 					}
 				}
+				PfMul(sc, &sc->locID[i], &regID[i], &sc->w, 0);
 			}
-			PfMul(sc, &sc->locID[i], &regID[i], &sc->w, 0);
 			
 		}
 		PfMov(sc, &sc->locID[0], &regID[0]);
@@ -1953,7 +1838,7 @@ temp%s = temp;\n\
 			if (stageSize == 1) {
 				temp_complex.data.c[0].data.d = pfFPinit("1.0");
 				temp_complex.data.c[1].data.d = pfFPinit("0.0");
-				PfMov(sc, &sc->w, &temp_complex);	
+				//PfMov(sc, &sc->w, &temp_complex);	
 				
 			}
 			else {
@@ -2002,8 +1887,8 @@ temp%s = temp;\n\
 						PfSinCos(sc, &sc->w, &sc->tempFloat);
 					}
 				}
+				PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			}
-			PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			
 		}
 		//important
@@ -2150,7 +2035,7 @@ temp%s = temp;\n\
 			if (stageSize == 1) {
 				temp_complex.data.c[0].data.d = pfFPinit("1.0");
 				temp_complex.data.c[1].data.d = pfFPinit("0.0");
-				PfMov(sc, &sc->w, &temp_complex);	
+				//PfMov(sc, &sc->w, &temp_complex);	
 				
 			}
 			else {
@@ -2199,8 +2084,8 @@ temp%s = temp;\n\
 						PfSinCos(sc, &sc->w, &sc->tempFloat);
 					}
 				}
+				PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			}
-			PfMul(sc, &regID[i], &regID[i], &sc->w, &sc->temp);
 			
 		}
 		//important
@@ -2363,8 +2248,15 @@ temp%s = temp;\n\
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 8; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 8]);
 			
+				PfSub(sc, &regID[i + 8], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -2384,20 +2276,27 @@ temp%s = temp;\n\
 			else {
 				PfSinCos(sc, &sc->w, &sc->angle);
 			}
-		}
-		for (pfUINT i = 0; i < 8; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 8], &sc->w, 0);
+			for (pfUINT i = 0; i < 8; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 8], &sc->w, 0);
 			
-			PfSub(sc, &regID[i + 8], &regID[i], &sc->temp);
+				PfSub(sc, &regID[i + 8], &regID[i], &sc->temp);
 			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
 			
+			}
 		}
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 4; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 4]);
 			
+				PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -2422,41 +2321,72 @@ temp%s = temp;\n\
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			for (pfUINT i = 0; i < 4; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 4], &sc->w, 0);
+			
+				PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
-		for (pfUINT i = 0; i < 4; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 4], &sc->w, 0);
-			
-			PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
-		if (stageAngle < 0) {
-			PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+		if (stageSize == 1) {
+			for (pfUINT i = 8; i < 12; i++) {
+				if (stageAngle < 0) {
+					PfMov(sc, &sc->temp.data.c[0], &regID[i + 4].data.c[1]);
+					PfMovNeg(sc, &sc->temp.data.c[1], &regID[i + 4].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+				}
+				else {
+					PfMovNeg(sc, &sc->temp.data.c[0], &regID[i + 4].data.c[1]);
+					PfMov(sc, &sc->temp.data.c[1], &regID[i + 4].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+				}
+				//PfMul(sc, &sc->temp, &regID[i + 4], &sc->iw, 0);
+
+				PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		else {
-			PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
-		}
+			if (stageAngle < 0) {
+				PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
 
-		for (pfUINT i = 8; i < 12; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 4], &sc->iw, 0);
-			
-			PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			}
+			else {
+				PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+			}
+
+			for (pfUINT i = 8; i < 12; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 4], &sc->iw, 0);
+
+				PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 2; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 2]);
 			
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -2481,46 +2411,70 @@ temp%s = temp;\n\
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			for (pfUINT i = 0; i < 2; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 2], &sc->w, 0);
+			
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
-		for (pfUINT i = 0; i < 2; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 2], &sc->w, 0);
-			
-			PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
-		if (stageAngle < 0) {
-			PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+		if (stageSize == 1) {
+			for (pfUINT i = 4; i < 6; i++) {
+				if (stageAngle < 0) {
+					PfMov(sc, &sc->temp.data.c[0], &regID[i + 2].data.c[1]);
+					PfMovNeg(sc, &sc->temp.data.c[1], &regID[i + 2].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+				}
+				else {
+					PfMovNeg(sc, &sc->temp.data.c[0], &regID[i + 2].data.c[1]);
+					PfMov(sc, &sc->temp.data.c[1], &regID[i + 2].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+				}
+
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		else {
-			PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
-		}
-		for (pfUINT i = 4; i < 6; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 2], &sc->iw, 0);
-			
-			PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
+			if (stageAngle < 0) {
+				PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			}
+			else {
+				PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+			}
+			for (pfUINT i = 4; i < 6; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 2], &sc->iw, 0);
+
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		if (stageAngle < 0) {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("-0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
-
 		}
 		else {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		}
+		if (stageSize == 1)
+			PfMov(sc, &sc->iw, &temp_complex);
+		else
+			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		for (pfUINT i = 8; i < 10; i++) {
 			PfMul(sc, &sc->temp, &regID[i + 2], &sc->iw, 0);
 			
@@ -2553,8 +2507,15 @@ temp%s = temp;\n\
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 1; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 1]);
 			
+				PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -2579,49 +2540,71 @@ temp%s = temp;\n\
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			for (pfUINT i = 0; i < 1; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 1], &sc->w, 0);
+			
+				PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
+		if (stageSize == 1) {
+			for (pfUINT i = 2; i < 3; i++) {
+				if (stageAngle < 0) {
+					PfMov(sc, &sc->temp.data.c[0], &regID[i + 1].data.c[1]);
+					PfMovNeg(sc, &sc->temp.data.c[1], &regID[i + 1].data.c[0]);
 
-		for (pfUINT i = 0; i < 1; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 1], &sc->w, 0);
+					//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+				}
+				else {
+					PfMovNeg(sc, &sc->temp.data.c[0], &regID[i + 1].data.c[1]);
+					PfMov(sc, &sc->temp.data.c[1], &regID[i + 1].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+				}
 			
-			PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
-		if (stageAngle < 0) {
-			PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+				PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		else {
-			PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
-		}
-		for (pfUINT i = 2; i < 3; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 1], &sc->iw, 0);
-			
-			PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
+			if (stageAngle < 0) {
+				PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
 
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			}
+			else {
+				PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+			}
+			for (pfUINT i = 2; i < 3; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 1], &sc->iw, 0);
+
+				PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
+		}
 
 		if (stageAngle < 0) {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("-0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
-
 		}
 		else {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		}
+		if (stageSize == 1)
+			PfMov(sc, &sc->iw, &temp_complex);
+		else
+			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		for (pfUINT i = 4; i < 5; i++) {
 			PfMul(sc, &sc->temp, &regID[i + 1], &sc->iw, 0);
 			
@@ -2658,13 +2641,15 @@ temp%s = temp;\n\
 			if (stageAngle < 0) {
 				temp_complex.data.c[0].data.d = pfcos((2 * j + 1) * sc->double_PI / 8);
 				temp_complex.data.c[1].data.d = -pfsin((2 * j + 1) * sc->double_PI / 8);
-				PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 			}
 			else {
 				temp_complex.data.c[0].data.d = pfcos((2 * j + 1) * sc->double_PI / 8);
 				temp_complex.data.c[1].data.d = pfsin((2 * j + 1) * sc->double_PI / 8);
-				PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 			}
+			if (stageSize == 1)
+				PfMov(sc, &sc->iw, &temp_complex);
+			else
+				PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 			for (pfUINT i = 8 + 4 * j; i < 9 + 4 * j; i++) {
 				PfMul(sc, &sc->temp, &regID[i + 1], &sc->iw, 0);
 				
@@ -2700,48 +2685,6 @@ temp%s = temp;\n\
 		pfUINT permute2[16] = { 0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15 };
 		PfPermute(sc, permute2, 16, 1, regID, &sc->temp);
 		
-
-		/*PfMov(sc, &sc->temp, &regID[1]);
-		
-		PfMov(sc, &regID[1], &regID[8]);
-		
-		PfMov(sc, &regID[8], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[2]);
-		
-		PfMov(sc, &regID[2], &regID[4]);
-		
-		PfMov(sc, &regID[4], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[3]);
-		
-		PfMov(sc, &regID[3], &regID[12]);
-		
-		PfMov(sc, &regID[12], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[5]);
-		
-		PfMov(sc, &regID[5], &regID[10]);
-		
-		PfMov(sc, &regID[10], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[7]);
-		
-		PfMov(sc, &regID[7], &regID[14]);
-		
-		PfMov(sc, &regID[14], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[11]);
-		
-		PfMov(sc, &regID[11], &regID[13]);
-		
-		PfMov(sc, &regID[13], &sc->temp);
-		*/
 		break;
 	}
 	case 32: {
@@ -2749,8 +2692,15 @@ temp%s = temp;\n\
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 16; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 16]);
 			
+				PfSub(sc, &regID[i + 16], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -2770,20 +2720,28 @@ temp%s = temp;\n\
 			else {
 				PfSinCos(sc, &sc->w, &sc->angle);
 			}
+			for (pfUINT i = 0; i < 16; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 16], &sc->w, 0);
+			
+				PfSub(sc, &regID[i + 16], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
-		for (pfUINT i = 0; i < 16; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 16], &sc->w, 0);
-			
-			PfSub(sc, &regID[i + 16], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
+		
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 8; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 8]);
 			
+				PfSub(sc, &regID[i + 8], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -2807,41 +2765,71 @@ temp%s = temp;\n\
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			for (pfUINT i = 0; i < 8; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 8], &sc->w, 0);
+			
+				PfSub(sc, &regID[i + 8], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
-		for (pfUINT i = 0; i < 8; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 8], &sc->w, 0);
-			
-			PfSub(sc, &regID[i + 8], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
-		if (stageAngle < 0) {
-			PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+		if (stageSize == 1) {
+			for (pfUINT i = 16; i < 24; i++) {
+				if (stageAngle < 0) {
+					PfMov(sc, &sc->temp.data.c[0], &regID[i + 8].data.c[1]);
+					PfMovNeg(sc, &sc->temp.data.c[1], &regID[i + 8].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+				}
+				else {
+					PfMovNeg(sc, &sc->temp.data.c[0], &regID[i + 8].data.c[1]);
+					PfMov(sc, &sc->temp.data.c[1], &regID[i + 8].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+				}
+
+				PfSub(sc, &regID[i + 8], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		else {
-			PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
-		}
+			if (stageAngle < 0) {
+				PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
 
-		for (pfUINT i = 16; i < 24; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 8], &sc->iw, 0);
-			
-			PfSub(sc, &regID[i + 8], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			}
+			else {
+				PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+			}
+
+			for (pfUINT i = 16; i < 24; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 8], &sc->iw, 0);
+
+				PfSub(sc, &regID[i + 8], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 4; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 4]);
 			
+				PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -2865,46 +2853,70 @@ temp%s = temp;\n\
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			for (pfUINT i = 0; i < 4; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 4], &sc->w, 0);
+			
+				PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
-		for (pfUINT i = 0; i < 4; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 4], &sc->w, 0);
-			
-			PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
-		if (stageAngle < 0) {
-			PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+		if (stageSize == 1) {
+			for (pfUINT i = 8; i < 12; i++) {
+				if (stageAngle < 0) {
+					PfMov(sc, &sc->temp.data.c[0], &regID[i + 4].data.c[1]);
+					PfMovNeg(sc, &sc->temp.data.c[1], &regID[i + 4].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+				}
+				else {
+					PfMovNeg(sc, &sc->temp.data.c[0], &regID[i + 4].data.c[1]);
+					PfMov(sc, &sc->temp.data.c[1], &regID[i + 4].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+				}
+
+				PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		else {
-			PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
-		}
-		for (pfUINT i = 8; i < 12; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 4], &sc->iw, 0);
-			
-			PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
+			if (stageAngle < 0) {
+				PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			}
+			else {
+				PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+			}
+			for (pfUINT i = 8; i < 12; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 4], &sc->iw, 0);
+
+				PfSub(sc, &regID[i + 4], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		if (stageAngle < 0) {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("-0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
-
 		}
 		else {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		}
+		if (stageSize == 1)
+			PfMov(sc, &sc->iw, &temp_complex);
+		else
+			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		for (pfUINT i = 16; i < 20; i++) {
 			PfMul(sc, &sc->temp, &regID[i + 4], &sc->iw, 0);
 			
@@ -2937,8 +2949,15 @@ temp%s = temp;\n\
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 2; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 2]);
 			
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -2962,49 +2981,70 @@ temp%s = temp;\n\
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			for (pfUINT i = 0; i < 2; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 2], &sc->w, 0);
+			
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
+		if (stageSize == 1) {
+			for (pfUINT i = 4; i < 6; i++) {
+				if (stageAngle < 0) {
+					PfMov(sc, &sc->temp.data.c[0], &regID[i + 2].data.c[1]);
+					PfMovNeg(sc, &sc->temp.data.c[1], &regID[i + 2].data.c[0]);
 
-		for (pfUINT i = 0; i < 2; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 2], &sc->w, 0);
-			
-			PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
-		if (stageAngle < 0) {
-			PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+					//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+				}
+				else {
+					PfMovNeg(sc, &sc->temp.data.c[0], &regID[i + 2].data.c[1]);
+					PfMov(sc, &sc->temp.data.c[1], &regID[i + 2].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+				}
+
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		else {
-			PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
-		}
-		for (pfUINT i = 4; i < 6; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 2], &sc->iw, 0);
-			
-			PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
+			if (stageAngle < 0) {
+				PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
 
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			}
+			else {
+				PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
 
+				//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+			}
+			for (pfUINT i = 4; i < 6; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 2], &sc->iw, 0);
+
+				PfSub(sc, &regID[i + 2], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
+		}
 		if (stageAngle < 0) {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("-0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
-
 		}
 		else {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		}
+		if (stageSize == 1)
+			PfMov(sc, &sc->iw, &temp_complex);
+		else
+			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		for (pfUINT i = 8; i < 10; i++) {
 			PfMul(sc, &sc->temp, &regID[i + 2], &sc->iw, 0);
 			
@@ -3041,13 +3081,15 @@ temp%s = temp;\n\
 			if (stageAngle < 0) {
 				temp_complex.data.c[0].data.d = pfcos((2 * j + 1) * sc->double_PI / 8);
 				temp_complex.data.c[1].data.d = -pfsin((2 * j + 1) * sc->double_PI / 8);
-				PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 			}
 			else {
 				temp_complex.data.c[0].data.d = pfcos((2 * j + 1) * sc->double_PI / 8);
 				temp_complex.data.c[1].data.d = pfsin((2 * j + 1) * sc->double_PI / 8);
-				PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 			}
+			if (stageSize == 1)
+				PfMov(sc, &sc->iw, &temp_complex);
+			else
+				PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 			for (pfUINT i = 16 + 8 * j; i < 18 + 8 * j; i++) {
 				PfMul(sc, &sc->temp, &regID[i + 2], &sc->iw, 0);
 				
@@ -3082,8 +3124,15 @@ temp%s = temp;\n\
 		if (stageSize == 1) {
 			temp_complex.data.c[0].data.d = pfFPinit("1.0");
 			temp_complex.data.c[1].data.d = pfFPinit("0.0");
-			PfMov(sc, &sc->w, &temp_complex);	
+			//PfMov(sc, &sc->w, &temp_complex);	
+			for (pfUINT i = 0; i < 1; i++) {
+				PfMov(sc, &sc->temp, &regID[i + 1]);
 			
+				PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
 		else {
 			if (sc->LUT) {
@@ -3106,50 +3155,72 @@ temp%s = temp;\n\
 				PfMul(sc, &sc->tempFloat, &sc->angle, &temp_double, 0);
 				PfSinCos(sc, &sc->w, &sc->tempFloat);
 			}
+			for (pfUINT i = 0; i < 1; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 1], &sc->w, 0);
+			
+				PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
+			
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+			
+			}
 		}
+		if (stageSize == 1) {
+			for (pfUINT i = 2; i < 3; i++) {
+				if (stageAngle < 0) {
+					PfMov(sc, &sc->temp.data.c[0], &regID[i + 1].data.c[1]);
+					PfMovNeg(sc, &sc->temp.data.c[1], &regID[i + 1].data.c[0]);
 
-		for (pfUINT i = 0; i < 1; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 1], &sc->w, 0);
-			
-			PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
-		if (stageAngle < 0) {
-			PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+				}
+				else {
+					PfMovNeg(sc, &sc->temp.data.c[0], &regID[i + 1].data.c[1]);
+					PfMov(sc, &sc->temp.data.c[1], &regID[i + 1].data.c[0]);
+
+					//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+				}
+
+				PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
 		}
 		else {
-			PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
-			PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
-			
-			//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
-		}
-		for (pfUINT i = 2; i < 3; i++) {
-			PfMul(sc, &sc->temp, &regID[i + 1], &sc->iw, 0);
-			
-			PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
-			
-			PfAdd(sc, &regID[i], &regID[i], &sc->temp);
-			
-		}
+			if (stageAngle < 0) {
+				PfMov(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMovNeg(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
 
 
+				//&sc->tempLen = sprintf(&sc->tempStr, "	w = %s(w.y, -w.x);\n\n", vecType);
+			}
+			else {
+				PfMovNeg(sc, &sc->iw.data.c[0], &sc->w.data.c[1]);
+				PfMov(sc, &sc->iw.data.c[1], &sc->w.data.c[0]);
+
+				//&sc->tempLen = sprintf(&sc->tempStr, "	iw = %s(-w.y, w.x);\n\n", vecType);
+			}
+			for (pfUINT i = 2; i < 3; i++) {
+				PfMul(sc, &sc->temp, &regID[i + 1], &sc->iw, 0);
+
+				PfSub(sc, &regID[i + 1], &regID[i], &sc->temp);
+
+				PfAdd(sc, &regID[i], &regID[i], &sc->temp);
+
+			}
+		}
 		if (stageAngle < 0) {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("-0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
-
 		}
 		else {
 			temp_complex.data.c[0].data.d = pfFPinit("0.70710678118654752440084436210485");
 			temp_complex.data.c[1].data.d = pfFPinit("0.70710678118654752440084436210485");
-			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		}
+		if (stageSize == 1)
+			PfMov(sc, &sc->iw, &temp_complex);
+		else
+			PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 		for (pfUINT i = 4; i < 5; i++) {
 			PfMul(sc, &sc->temp, &regID[i + 1], &sc->iw, 0);
 			
@@ -3187,13 +3258,15 @@ temp%s = temp;\n\
 			if (stageAngle < 0) {
 				temp_complex.data.c[0].data.d = pfcos((2 * j + 1) * sc->double_PI / 8);
 				temp_complex.data.c[1].data.d = -pfsin((2 * j + 1) * sc->double_PI / 8);
-				PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 			}
 			else {
 				temp_complex.data.c[0].data.d = pfcos((2 * j + 1) * sc->double_PI / 8);
 				temp_complex.data.c[1].data.d = pfsin((2 * j + 1) * sc->double_PI / 8);
-				PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 			}
+			if (stageSize == 1)
+				PfMov(sc, &sc->iw, &temp_complex);
+			else
+				PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 			for (pfUINT i = 8 + 4 * j; i < 9 + 4 * j; i++) {
 				PfMul(sc, &sc->temp, &regID[i + 1], &sc->iw, 0);
 				
@@ -3231,26 +3304,26 @@ temp%s = temp;\n\
 				if (stageAngle < 0) {
 					temp_complex.data.c[0].data.d = pfcos((7 - 2 * j) * sc->double_PI / 16);
 					temp_complex.data.c[1].data.d = -pfsin((7 - 2 * j) * sc->double_PI / 16);
-					PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 				}
 				else {
 					temp_complex.data.c[0].data.d = pfcos((7 - 2 * j) * sc->double_PI / 16);
 					temp_complex.data.c[1].data.d = pfsin((7 - 2 * j) * sc->double_PI / 16);
-					PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 				}
 			}
 			else {
 				if (stageAngle < 0) {
 					temp_complex.data.c[0].data.d = pfcos((2 * j + 1) * sc->double_PI / 16);
 					temp_complex.data.c[1].data.d = -pfsin((2 * j + 1) * sc->double_PI / 16);
-					PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 				}
 				else {
 					temp_complex.data.c[0].data.d = pfcos((2 * j + 1) * sc->double_PI / 16);
 					temp_complex.data.c[1].data.d = pfsin((2 * j + 1) * sc->double_PI / 16);
-					PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 				}
 			}
+			if (stageSize == 1)
+				PfMov(sc, &sc->iw, &temp_complex);
+			else
+				PfMul(sc, &sc->iw, &sc->w, &temp_complex, 0);
 			for (pfUINT i = 16 + 4 * j; i < 17 + 4 * j; i++) {
 				PfMul(sc, &sc->temp, &regID[i + 1], &sc->iw, 0);
 				
@@ -3286,91 +3359,6 @@ temp%s = temp;\n\
 		pfUINT permute2[32] = { 0,16,8,24,4,20,12,28,2,18,10,26,6,22,14,30,1,17,9,25,5,21,13,29,3,19,11,27,7,23,15,31 };
 		PfPermute(sc, permute2, 32, 1, regID, &sc->temp);
 		
-
-		/*PfMov(sc, &sc->temp, &regID[1]);
-		
-		PfMov(sc, &regID[1], &regID[16]);
-		
-		PfMov(sc, &regID[16], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[2]);
-		
-		PfMov(sc, &regID[2], &regID[8]);
-		
-		PfMov(sc, &regID[8], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[3]);
-		
-		PfMov(sc, &regID[3], &regID[24]);
-		
-		PfMov(sc, &regID[24], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[5]);
-		
-		PfMov(sc, &regID[5], &regID[20]);
-		
-		PfMov(sc, &regID[20], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[6]);
-		
-		PfMov(sc, &regID[6], &regID[12]);
-		
-		PfMov(sc, &regID[12], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[7]);
-		
-		PfMov(sc, &regID[7], &regID[28]);
-		
-		PfMov(sc, &regID[28], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[9]);
-		
-		PfMov(sc, &regID[9], &regID[18]);
-		
-		PfMov(sc, &regID[18], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[11]);
-		
-		PfMov(sc, &regID[11], &regID[26]);
-		
-		PfMov(sc, &regID[26], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[13]);
-		
-		PfMov(sc, &regID[13], &regID[22]);
-		
-		PfMov(sc, &regID[22], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[15]);
-		
-		PfMov(sc, &regID[15], &regID[30]);
-		
-		PfMov(sc, &regID[30], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[19]);
-		
-		PfMov(sc, &regID[19], &regID[25]);
-		
-		PfMov(sc, &regID[25], &sc->temp);
-		
-
-		PfMov(sc, &sc->temp, &regID[23]);
-		
-		PfMov(sc, &regID[23], &regID[29]);
-		
-		PfMov(sc, &regID[29], &sc->temp);
-		*/
-
 		break;
 	}
 	}

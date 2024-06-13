@@ -63,8 +63,9 @@ static inline VkFFTResult VkFFTConfigureDescriptors(VkFFTApplication* app, VkFFT
 			VkFFTSetBlockParameters(&axis->specializationConstants.inputBufferSeparateComplexComponents, &initPageSize, &locBufferNum, &locBufferSize, app->configuration.outputBufferNum, app->configuration.outputBufferSize, app->configuration.outputBufferSeparateComplexComponents, &axis->specializationConstants.inputBufferBlockSize, &axis->specializationConstants.inputBufferBlockNum);
 		}
 		else {
-			if (((axis->specializationConstants.reorderFourStep == 1) || (app->useBluesteinFFT[axis_id])) && (FFTPlan->numAxisUploads[axis_id] > 1)) {
-				if ((((axis->specializationConstants.reorderFourStep == 1) && (axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1)) || (app->useBluesteinFFT[axis_id] && (axis->specializationConstants.reverseBluesteinMultiUpload == 0) && (axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1))) && (!((axis_id == 0) && (axis->specializationConstants.performR2CmultiUpload) && (axis->specializationConstants.reorderFourStep == 1) && (inverse == 1)))) {
+			if (((axis->specializationConstants.reorderFourStep) || (app->useBluesteinFFT[axis_id])) && (FFTPlan->numAxisUploads[axis_id] > 1)) {
+				int parity_reorderFourStep_startBuffer = ((axis_id == 0) && (FFTPlan->bigSequenceEvenR2C) && (axis->specializationConstants.reorderFourStep == 2) && (inverse == 1)) ? 1 : 0;
+				if ((((axis->specializationConstants.reorderFourStep == 1) && (axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1)) || ((axis->specializationConstants.reorderFourStep == 2) && (((FFTPlan->numAxisUploads[axis_id] - 1 - axis_upload_id)%2) == parity_reorderFourStep_startBuffer)) || (app->useBluesteinFFT[axis_id] && (axis->specializationConstants.reverseBluesteinMultiUpload == 0) && (axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1))) && (!((axis_id == 0) && ((axis_upload_id == (FFTPlan->numAxisUploads[axis_id] - 1)) || (axis->specializationConstants.reorderFourStep != 2)) && (FFTPlan->bigSequenceEvenR2C) && (axis->specializationConstants.reorderFourStep) && (inverse == 1)))) {
                     VkFFTSetBlockParameters(&axis->specializationConstants.inputBufferSeparateComplexComponents, &initPageSize, &locBufferNum, &locBufferSize, app->configuration.bufferNum, app->configuration.bufferSize, app->configuration.bufferSeparateComplexComponents, &axis->specializationConstants.inputBufferBlockSize, &axis->specializationConstants.inputBufferBlockNum);
 				}
 				else {
@@ -95,7 +96,7 @@ static inline VkFFTResult VkFFTConfigureDescriptors(VkFFTApplication* app, VkFFT
 		VkFFTSetBlockParameters(&axis->specializationConstants.outputBufferSeparateComplexComponents, &initPageSize, &locBufferNum, &locBufferSize, app->configuration.outputBufferNum, app->configuration.outputBufferSize, app->configuration.outputBufferSeparateComplexComponents, &axis->specializationConstants.outputBufferBlockSize, &axis->specializationConstants.outputBufferBlockNum);
 	}
 	else {
-		if (((axis->specializationConstants.reorderFourStep == 1) || (app->useBluesteinFFT[axis_id])) && (FFTPlan->numAxisUploads[axis_id] > 1)) {
+		if (((axis->specializationConstants.reorderFourStep) || (app->useBluesteinFFT[axis_id])) && (FFTPlan->numAxisUploads[axis_id] > 1)) {
             if ((inverse) && (axis_id == app->firstAxis) && (
                 ((axis_upload_id == 0) && (app->configuration.isInputFormatted) && (app->configuration.inverseReturnToInputBuffer) && (!app->useBluesteinFFT[axis_id]))
                 || ((axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1) && (app->configuration.isInputFormatted) && (axis->specializationConstants.actualInverse) && (app->configuration.inverseReturnToInputBuffer) && (app->useBluesteinFFT[axis_id]) && (axis->specializationConstants.reverseBluesteinMultiUpload || (FFTPlan->numAxisUploads[axis_id] == 1))))
@@ -103,7 +104,8 @@ static inline VkFFTResult VkFFTConfigureDescriptors(VkFFTApplication* app, VkFFT
                     VkFFTSetBlockParameters(&axis->specializationConstants.outputBufferSeparateComplexComponents, &initPageSize, &locBufferNum, &locBufferSize, app->configuration.inputBufferNum, app->configuration.inputBufferSize, app->configuration.inputBufferSeparateComplexComponents, &axis->specializationConstants.outputBufferBlockSize, &axis->specializationConstants.outputBufferBlockNum);
                 }
                 else{
-                    if (((axis->specializationConstants.reorderFourStep == 1) && (axis_upload_id > 0)) || (app->useBluesteinFFT[axis_id] && (!((axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1) && (axis->specializationConstants.reverseBluesteinMultiUpload == 1))))) {
+					int parity_reorderFourStep_startBuffer = ((axis_id == 0) && (FFTPlan->bigSequenceEvenR2C) && (axis->specializationConstants.reorderFourStep == 2) && (inverse == 1)) ? 1 : 0;
+					if (((axis->specializationConstants.reorderFourStep == 1) && (axis_upload_id > 0)) || ((axis->specializationConstants.reorderFourStep == 2) && ((((FFTPlan->numAxisUploads[axis_id] - 1 - axis_upload_id)%2) == parity_reorderFourStep_startBuffer) && (axis_upload_id != 0))) || (app->useBluesteinFFT[axis_id] && (!((axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1) && (axis->specializationConstants.reverseBluesteinMultiUpload == 1))))) {
 						VkFFTSetBlockParameters(&axis->specializationConstants.outputBufferSeparateComplexComponents, &initPageSize, &locBufferNum, &locBufferSize, app->configuration.tempBufferNum, app->configuration.tempBufferSize, app->configuration.tempBufferSeparateComplexComponents, &axis->specializationConstants.outputBufferBlockSize, &axis->specializationConstants.outputBufferBlockNum);
                     }
                     else {
@@ -657,8 +659,9 @@ static inline VkFFTResult VkFFTUpdateBufferSet(VkFFTApplication* app, VkFFTPlan*
 							}
 						}
 						else {
-							if (((axis->specializationConstants.reorderFourStep == 1) || (app->useBluesteinFFT[axis_id])) && (FFTPlan->numAxisUploads[axis_id] > 1)) {
-								if ((((axis->specializationConstants.reorderFourStep == 1) && (axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1)) || (app->useBluesteinFFT[axis_id] && (axis->specializationConstants.reverseBluesteinMultiUpload == 0) && (axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1))) && (!((axis_id == 0) && (FFTPlan->bigSequenceEvenR2C) && (axis->specializationConstants.reorderFourStep == 1) && (inverse == 1)))) {
+							if (((axis->specializationConstants.reorderFourStep) || (app->useBluesteinFFT[axis_id])) && (FFTPlan->numAxisUploads[axis_id] > 1)) {
+								int parity_reorderFourStep_startBuffer = ((axis_id == 0) && (FFTPlan->bigSequenceEvenR2C) && (axis->specializationConstants.reorderFourStep == 2) && (inverse == 1)) ? 1 : 0;
+								if ((((axis->specializationConstants.reorderFourStep == 1) && (axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1)) || ((axis->specializationConstants.reorderFourStep == 2) && (((FFTPlan->numAxisUploads[axis_id] - 1 - axis_upload_id)%2) == parity_reorderFourStep_startBuffer)) || (app->useBluesteinFFT[axis_id] && (axis->specializationConstants.reverseBluesteinMultiUpload == 0) && (axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1))) && (!((axis_id == 0) && ((axis_upload_id == (FFTPlan->numAxisUploads[axis_id] - 1)) || (axis->specializationConstants.reorderFourStep != 2)) && (FFTPlan->bigSequenceEvenR2C) && (axis->specializationConstants.reorderFourStep) && (inverse == 1)))) {
 									if (axis->specializationConstants.performBufferSetUpdate) {
 										VkFFTSetBufferParameters((void**)&axis->inputBuffer, &axis->specializationConstants.inputBufferNum, app->configuration.buffer, j, app->configuration.bufferNum, app->configuration.bufferSize, &axis->specializationConstants.inputBufferBlockSize, axis->specializationConstants.inputBufferSeparateComplexComponents, &descriptorBufferInfo);
 									}
@@ -713,7 +716,7 @@ static inline VkFFTResult VkFFTUpdateBufferSet(VkFFTApplication* app, VkFFTPlan*
 						}
 					}
 					else {
-						if (((axis->specializationConstants.reorderFourStep == 1) || (app->useBluesteinFFT[axis_id])) && (FFTPlan->numAxisUploads[axis_id] > 1)) {
+						if (((axis->specializationConstants.reorderFourStep) || (app->useBluesteinFFT[axis_id])) && (FFTPlan->numAxisUploads[axis_id] > 1)) {
 							if ((inverse) && (axis_id == app->firstAxis) && (
 								((axis_upload_id == 0) && (app->configuration.isInputFormatted) && (app->configuration.inverseReturnToInputBuffer) && (!app->useBluesteinFFT[axis_id]))
 								|| ((axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1) && (app->configuration.isInputFormatted) && (axis->specializationConstants.actualInverse) && (app->configuration.inverseReturnToInputBuffer) && (app->useBluesteinFFT[axis_id]) && (axis->specializationConstants.reverseBluesteinMultiUpload || (FFTPlan->numAxisUploads[axis_id] == 1))))
@@ -727,7 +730,8 @@ static inline VkFFTResult VkFFTUpdateBufferSet(VkFFTApplication* app, VkFFTPlan*
 								}
 							}
 							else {
-								if (((axis->specializationConstants.reorderFourStep == 1) && (axis_upload_id > 0)) || (app->useBluesteinFFT[axis_id] && (!((axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1) && (axis->specializationConstants.reverseBluesteinMultiUpload == 1))))) {
+								int parity_reorderFourStep_startBuffer = ((axis_id == 0) && (FFTPlan->bigSequenceEvenR2C) && (axis->specializationConstants.reorderFourStep == 2) && (inverse == 1)) ? 1 : 0;
+								if (((axis->specializationConstants.reorderFourStep == 1) && (axis_upload_id > 0)) || ((axis->specializationConstants.reorderFourStep == 2) && ((((FFTPlan->numAxisUploads[axis_id] - 1 - axis_upload_id)%2) == parity_reorderFourStep_startBuffer) && (axis_upload_id != 0))) || (app->useBluesteinFFT[axis_id] && (!((axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1) && (axis->specializationConstants.reverseBluesteinMultiUpload == 1))))) {
 									if (axis->specializationConstants.performBufferSetUpdate) {
 										VkFFTSetBufferParameters((void**)&axis->outputBuffer, &axis->specializationConstants.outputBufferNum, app->configuration.tempBuffer, j, app->configuration.tempBufferNum, app->configuration.tempBufferSize, &axis->specializationConstants.outputBufferBlockSize, axis->specializationConstants.outputBufferSeparateComplexComponents, &descriptorBufferInfo);
 									}
@@ -945,7 +949,7 @@ static inline VkFFTResult VkFFTUpdateBufferSetR2CMultiUploadDecomposition(VkFFTA
 						else {
 							pfUINT bufferId = 0;
 							pfUINT offset = j;
-							if (axis->specializationConstants.reorderFourStep == 1) {
+							if (axis->specializationConstants.reorderFourStep) {
 								if (axis->specializationConstants.performBufferSetUpdate) {
 									VkFFTSetBufferParameters((void**)&axis->outputBuffer, &axis->specializationConstants.outputBufferNum, app->configuration.tempBuffer, j, app->configuration.tempBufferNum, app->configuration.tempBufferSize, &axis->specializationConstants.outputBufferBlockSize, axis->specializationConstants.outputBufferSeparateComplexComponents, &descriptorBufferInfo);
 								}

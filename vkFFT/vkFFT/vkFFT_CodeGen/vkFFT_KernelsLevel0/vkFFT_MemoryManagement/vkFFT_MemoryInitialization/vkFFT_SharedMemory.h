@@ -160,10 +160,21 @@ static inline void appendSharedMemoryVkFFT(VkFFTSpecializationConstantsLayout* s
 		pfUINT shift = (sc->fftDim.data.i < (sc->numSharedBanks / 2)) ? (sc->numSharedBanks / 2) / sc->fftDim.data.i : 1;
 		sc->sharedStrideReadWriteConflict.type = 31;
 		sc->sharedStrideReadWriteConflict.data.i = ((sc->axisSwapped) && ((sc->localSize[0].data.i % 4) == 0)) ? sc->localSize[0].data.i + shift : sc->localSize[0].data.i;
+
+		sc->sharedStride4StepLastAxisConflict.type = 31;
+		if ((sc->axis_id == 0) && (sc->axis_upload_id == (sc->numAxisUploads - 1)) && (sc->reorderFourStep == 2) && ((sc->localSize[0].data.i & (sc->localSize[0].data.i - 1)) == 0) && ((sc->fftDim.data.i & (sc->fftDim.data.i - 1)) != 0)) //for powers of two it is better to have more occupancy and let bc go
+			sc->sharedStride4StepLastAxisConflict.data.i = sc->localSize[0].data.i;// sc->localSize[0].data.i + 1; //disabled for now
+		else
+			sc->sharedStride4StepLastAxisConflict.data.i = sc->localSize[0].data.i;
+
 		sc->maxSharedStride.type = 31;
-		sc->maxSharedStride.data.i = ((maxSequenceSharedMemory.data.i < sc->sharedStrideReadWriteConflict.data.i * (sc->fftDim.data.i / sc->registerBoost + (pfINT)additionalR2Cshared))) ? sc->localSize[0].data.i : sc->sharedStrideReadWriteConflict.data.i;
+		sc->maxSharedStride.data.i = maxSequenceSharedMemory.data.i / sc->fftDim.data.i;// ((maxSequenceSharedMemory.data.i < sc->sharedStrideReadWriteConflict.data.i* (sc->fftDim.data.i / sc->registerBoost + (pfINT)additionalR2Cshared))) ? sc->localSize[0].data.i : sc->sharedStrideReadWriteConflict.data.i;
 		sc->sharedStrideReadWriteConflict.data.i = (sc->maxSharedStride.data.i == sc->localSize[0].data.i) ? sc->localSize[0].data.i : sc->sharedStrideReadWriteConflict.data.i;
-		
+		sc->sharedStride4StepLastAxisConflict.data.i = (sc->maxSharedStride.data.i == sc->localSize[0].data.i) ? sc->localSize[0].data.i : sc->sharedStride4StepLastAxisConflict.data.i;
+
+		sc->maxSharedStride.data.i = sc->sharedStrideReadWriteConflict.data.i;
+		if (sc->sharedStride4StepLastAxisConflict.data.i > sc->maxSharedStride.data.i) sc->maxSharedStride.data.i = sc->sharedStride4StepLastAxisConflict.data.i;
+
 		sc->sharedStride.type = 31;
 		PfMov(sc, &sc->sharedStride, &sc->sharedStrideReadWriteConflict);
 		

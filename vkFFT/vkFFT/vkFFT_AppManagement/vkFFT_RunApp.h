@@ -121,19 +121,25 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                 if (!app->configuration.usePushDescriptors) vkCmdBindDescriptorSets(app->configuration.commandBuffer[0], VK_PIPELINE_BIND_POINT_COMPUTE, axis->pipelineLayout, 0, 1, &axis->descriptorSet, 0, 0);
 #endif
                 pfUINT dispatchBlock[3];
-                if (l == 0) {
+                if ((l == 0) && (!(axis->specializationConstants.reorderFourStep == 2))) {
+                    uint64_t batching_localSize = ((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite)) ? axis->axisBlock[0] : axis->axisBlock[1];
+                        
                     if (app->localFFTPlan->numAxisUploads[0] > 2) {
-                        dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[1]) / (double)app->localFFTPlan->axisSplit[0][1]) * app->localFFTPlan->axisSplit[0][1];
+                        if ((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite))
+                            dispatchBlock[0] = (pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)batching_localSize);
+                        else
+                            dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)batching_localSize) / (double)app->localFFTPlan->axisSplit[0][1]) * app->localFFTPlan->axisSplit[0][1];
+                        
                         dispatchBlock[1] = app->localFFTPlan->actualFFTSizePerAxis[0][1];
                     }
                     else {
                         if (app->localFFTPlan->numAxisUploads[0] > 1) {
-                            dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[1]));
+                            dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)batching_localSize));
                             dispatchBlock[1] = app->localFFTPlan->actualFFTSizePerAxis[0][1];
                         }
                         else {
                             dispatchBlock[0] = app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i;
-                            dispatchBlock[1] = (pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][1] / (double)axis->axisBlock[1]);
+                            dispatchBlock[1] = (pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][1] / (double)batching_localSize);
                         }
                     }
                 }
@@ -166,26 +172,8 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                     if (!app->configuration.usePushDescriptors) vkCmdBindDescriptorSets(app->configuration.commandBuffer[0], VK_PIPELINE_BIND_POINT_COMPUTE, axis->pipelineLayout, 0, 1, &axis->descriptorSet, 0, 0);
 #endif
                     pfUINT dispatchBlock[3];
-                    if (l == 0) {
-                        if (app->localFFTPlan->numAxisUploads[0] > 2) {
-                            dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[1]) / (double)app->localFFTPlan->axisSplit[0][1]) * app->localFFTPlan->axisSplit[0][1];
-                            dispatchBlock[1] = app->localFFTPlan->actualFFTSizePerAxis[0][1];
-                        }
-                        else {
-                            if (app->localFFTPlan->numAxisUploads[0] > 1) {
-                                dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[1]));
-                                dispatchBlock[1] = app->localFFTPlan->actualFFTSizePerAxis[0][1];
-                            }
-                            else {
-                                dispatchBlock[0] = app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i;
-                                dispatchBlock[1] = (pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][1] / (double)axis->axisBlock[1]);
-                            }
-                        }
-                    }
-                    else {
-                        dispatchBlock[0] = (pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[0]);
-                        dispatchBlock[1] = app->localFFTPlan->actualFFTSizePerAxis[0][1];
-                    }
+                    dispatchBlock[0] = (pfUINT)pfceil(app->localFFTPlan->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[0]);
+                    dispatchBlock[1] = app->localFFTPlan->actualFFTSizePerAxis[0][1];
                     
                     dispatchBlock[2] = maxCoordinate * app->configuration.numberBatches;
                     for (int p = 2; p <app->configuration.FFTdim; p++){
@@ -390,19 +378,25 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
 #endif
                 pfUINT dispatchBlock[3];
                 if (i==1){
-                    if (l == 0) {
+                    if ((l == 0) && (!(axis->specializationConstants.reorderFourStep == 2))) {
+                        uint64_t batching_localSize = ((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite)) ? axis->axisBlock[0] : axis->axisBlock[1];
+                        
                         if (app->localFFTPlan_inverse->numAxisUploads[0] > 2) {
-                            dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[1]) / (double)app->localFFTPlan_inverse->axisSplit[0][1]) * app->localFFTPlan_inverse->axisSplit[0][1];
+                            if ((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite))
+                                dispatchBlock[0] = (pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)batching_localSize);
+                            else
+                                dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)batching_localSize) / (double)app->localFFTPlan_inverse->axisSplit[0][1]) * app->localFFTPlan_inverse->axisSplit[0][1];
+                            
                             dispatchBlock[1] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1];
                         }
                         else {
                             if (app->localFFTPlan_inverse->numAxisUploads[0] > 1) {
-                                dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[1]));
+                                dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)batching_localSize));
                                 dispatchBlock[1] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1];
                             }
                             else {
                                 dispatchBlock[0] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i;
-                                dispatchBlock[1] = (pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1] / (double)axis->axisBlock[1]);
+                                dispatchBlock[1] = (pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1] / (double)batching_localSize);
                             }
                         }
                     }
@@ -467,7 +461,6 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
         for (int i = (int)app->configuration.FFTdim-1; i > 0; i--){
             if (!app->configuration.omitDimension[i]) {
                 for (pfINT l = (pfINT)app->localFFTPlan_inverse->numAxisUploads[i] - 1; l >= 0; l--) {
-                    //if ((!app->configuration.reorderFourStep) && (!app->useBluesteinFFT[2])) l = app->localFFTPlan_inverse->numAxisUploads[2] - 1 - l;
                     VkFFTAxis* axis = &app->localFFTPlan_inverse->axes[i][l];
                     resFFT = VkFFTUpdateBufferSet(app, app->localFFTPlan_inverse, axis, i, l, 1);
                     if (resFFT != VKFFT_SUCCESS) return resFFT;
@@ -493,7 +486,6 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                     if (resFFT != VKFFT_SUCCESS) return resFFT;
                     resFFT = VkFFTSync(app);
                     if (resFFT != VKFFT_SUCCESS) return resFFT;
-                    //if ((!app->configuration.reorderFourStep) && (!app->useBluesteinFFT[2])) l = app->localFFTPlan_inverse->numAxisUploads[2] - 1 - l;
                 }
                 if (app->useBluesteinFFT[i] && (app->localFFTPlan_inverse->numAxisUploads[i] > 1)) {
                     for (pfINT l = 1; l < (pfINT)app->localFFTPlan_inverse->numAxisUploads[i]; l++) {
@@ -554,7 +546,6 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
             }
             //FFT axis 0
             for (pfINT l = (pfINT)app->localFFTPlan_inverse->numAxisUploads[0] - 1; l >= 0; l--) {
-                //if ((!app->configuration.reorderFourStep) && (!app->useBluesteinFFT[0])) l = app->localFFTPlan_inverse->numAxisUploads[0] - 1 - l;
                 VkFFTAxis* axis = &app->localFFTPlan_inverse->axes[0][l];
                 resFFT = VkFFTUpdateBufferSet(app, app->localFFTPlan_inverse, axis, 0, l, 1);
                 if (resFFT != VKFFT_SUCCESS) return resFFT;
@@ -563,19 +554,24 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                 if (!app->configuration.usePushDescriptors) vkCmdBindDescriptorSets(app->configuration.commandBuffer[0], VK_PIPELINE_BIND_POINT_COMPUTE, axis->pipelineLayout, 0, 1, &axis->descriptorSet, 0, 0);
 #endif
                 pfUINT dispatchBlock[3];
-                if (l == 0) {
+                if ((l == 0) && (!(axis->specializationConstants.reorderFourStep == 2))) {
+                    uint64_t batching_localSize = ((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite)) ? axis->axisBlock[0] : axis->axisBlock[1];
+                        
                     if (app->localFFTPlan_inverse->numAxisUploads[0] > 2) {
-                        dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[1]) / (double)app->localFFTPlan_inverse->axisSplit[0][1]) * app->localFFTPlan_inverse->axisSplit[0][1];
+                        if ((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite))
+                            dispatchBlock[0] = (pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)batching_localSize);
+                        else
+                            dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)batching_localSize) / (double)app->localFFTPlan_inverse->axisSplit[0][1]) * app->localFFTPlan_inverse->axisSplit[0][1];
                         dispatchBlock[1] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1];
                     }
                     else {
                         if (app->localFFTPlan_inverse->numAxisUploads[0] > 1) {
-                            dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[1]));
+                            dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)batching_localSize));
                             dispatchBlock[1] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1];
                         }
                         else {
                             dispatchBlock[0] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i;
-                            dispatchBlock[1] = (pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1] / (double)axis->axisBlock[1]);
+                            dispatchBlock[1] = (pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1] / (double)batching_localSize);
                         }
                     }
                 }
@@ -593,7 +589,6 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                 resFFT = VkFFT_DispatchPlan(app, axis, dispatchBlock);
                 printDebugInformation(app, axis);
                 if (resFFT != VKFFT_SUCCESS) return resFFT;
-                //if ((!app->configuration.reorderFourStep) && (!app->useBluesteinFFT[0])) l = app->localFFTPlan_inverse->numAxisUploads[0] - 1 - l;
                 resFFT = VkFFTSync(app);
                 if (resFFT != VKFFT_SUCCESS) return resFFT;
             }
@@ -608,26 +603,9 @@ static inline VkFFTResult VkFFTAppend(VkFFTApplication* app, int inverse, VkFFTL
                     if (!app->configuration.usePushDescriptors) vkCmdBindDescriptorSets(app->configuration.commandBuffer[0], VK_PIPELINE_BIND_POINT_COMPUTE, axis->pipelineLayout, 0, 1, &axis->descriptorSet, 0, 0);
 #endif
                     pfUINT dispatchBlock[3];
-                    if (l == 0) {
-                        if (app->localFFTPlan_inverse->numAxisUploads[0] > 2) {
-                            dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[1]) / (double)app->localFFTPlan_inverse->axisSplit[0][1]) * app->localFFTPlan_inverse->axisSplit[0][1];
-                            dispatchBlock[1] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1];
-                        }
-                        else {
-                            if (app->localFFTPlan_inverse->numAxisUploads[0] > 1) {
-                                dispatchBlock[0] = (pfUINT)pfceil((pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[1]));
-                                dispatchBlock[1] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1];
-                            }
-                            else {
-                                dispatchBlock[0] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i;
-                                dispatchBlock[1] = (pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1] / (double)axis->axisBlock[1]);
-                            }
-                        }
-                    }
-                    else {
-                        dispatchBlock[0] = (pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[0]);
-                        dispatchBlock[1] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1];
-                    }
+                    dispatchBlock[0] = (pfUINT)pfceil(app->localFFTPlan_inverse->actualFFTSizePerAxis[0][0] / axis->specializationConstants.fftDim.data.i / (double)axis->axisBlock[0]);
+                    dispatchBlock[1] = app->localFFTPlan_inverse->actualFFTSizePerAxis[0][1];
+
                     dispatchBlock[2] = app->configuration.coordinateFeatures * app->configuration.numberBatches;
                     for (int p = 2; p <app->configuration.FFTdim; p++){
                         dispatchBlock[2]*= app->localFFTPlan_inverse->actualFFTSizePerAxis[0][p];

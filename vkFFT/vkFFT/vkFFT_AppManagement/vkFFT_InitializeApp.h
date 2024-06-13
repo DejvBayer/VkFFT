@@ -503,6 +503,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		app->configuration.registerBoostNonPow2 = 0;
 		app->configuration.registerBoost = 4;
 		app->configuration.registerBoost4Step = 1;
+		app->configuration.reorderFourStep = 2;
 		app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision) ? 4194305 : 4194305;
 		break;
 	case 0x8086://INTEL
@@ -512,6 +513,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		app->configuration.registerBoostNonPow2 = 0;
 		app->configuration.registerBoost = (physicalDeviceProperties.limits.maxComputeSharedMemorySize >= 65536) ? 1 : 2;
 		app->configuration.registerBoost4Step = 1;
+		app->configuration.reorderFourStep = 1;
 		app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 262144 : 524288;
 		break;
 	case 0x1002://AMD
@@ -521,6 +523,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		app->configuration.registerBoostNonPow2 = 0;
 		app->configuration.registerBoost = (physicalDeviceProperties.limits.maxComputeSharedMemorySize >= 65536) ? 2 : 4;
 		app->configuration.registerBoost4Step = 1;
+		app->configuration.reorderFourStep = 3;
 		app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 262144 : 524288;
 		break;
 	default:
@@ -530,6 +533,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		app->configuration.registerBoostNonPow2 = 0;
 		app->configuration.registerBoost = 1;
 		app->configuration.registerBoost4Step = 1;
+		app->configuration.reorderFourStep = 1;
 		app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 262144 : 524288;
 		break;
 	}
@@ -646,9 +650,10 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	app->configuration.coalescedMemory = (app->configuration.halfPrecision) ? 64 : 32;//the coalesced memory is equal to 32 bytes between L2 and VRAM.
 	app->configuration.useLUT = (app->configuration.doublePrecision || app->configuration.doublePrecisionFloatMemory || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 1 : -1;
 	app->configuration.registerBoostNonPow2 = 0;
-	app->configuration.registerBoost = 1;
+	app->configuration.registerBoost = (app->configuration.sharedMemorySize <= 65536) ? 2 : 1;
 	app->configuration.registerBoost4Step = 1;
-	app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 4194305 : 4194305;
+	app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 16777216 : 16777216;
+	app->configuration.reorderFourStep = 3;
 	app->configuration.vendorID = 0x10DE;
 #elif(VKFFT_BACKEND==2)
 	hipError_t res = hipSuccess;
@@ -751,8 +756,9 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	app->configuration.useLUT = (app->configuration.doublePrecision || app->configuration.doublePrecisionFloatMemory || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 1 : -1;
 	app->configuration.useLUT_4step = -1;
 	app->configuration.registerBoostNonPow2 = 0;
-	app->configuration.registerBoost = 1;
+	app->configuration.registerBoost = 4;
 	app->configuration.registerBoost4Step = 1;
+	app->configuration.reorderFourStep = 3;
 	app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 1048576 : 2097152;
 	app->configuration.vendorID = 0x1002;
 #elif(VKFFT_BACKEND==3)
@@ -825,6 +831,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		app->configuration.registerBoostNonPow2 = 0;
 		app->configuration.registerBoost = 4;
 		app->configuration.registerBoost4Step = 1;
+		app->configuration.reorderFourStep = 2;
 		app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 4194305 : 4194305;
 		app->configuration.sharedMemorySize -= 0x10;//reserved by system
 		break;
@@ -835,6 +842,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		app->configuration.registerBoostNonPow2 = 0;
 		app->configuration.registerBoost = (sharedMemorySize >= 65536) ? 1 : 2;
 		app->configuration.registerBoost4Step = 1;
+		app->configuration.reorderFourStep = 1;
 		app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 262144 : 524288;
 		break;
 	case 0x1002://AMD
@@ -844,6 +852,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		app->configuration.registerBoostNonPow2 = 0;
 		app->configuration.registerBoost = (sharedMemorySize >= 65536) ? 2 : 4;
 		app->configuration.registerBoost4Step = 1;
+		app->configuration.reorderFourStep = 3;
 		app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 262144 : 524288;
 		break;
 	default:
@@ -853,6 +862,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		app->configuration.registerBoostNonPow2 = 0;
 		app->configuration.registerBoost = 1;
 		app->configuration.registerBoost4Step = 1;
+		app->configuration.reorderFourStep = 1;
 		app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 262144 : 524288;
 		break;
 	}
@@ -898,6 +908,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	app->configuration.registerBoostNonPow2 = 0;
 	app->configuration.registerBoost = (app->configuration.sharedMemorySize >= 65536) ? 1 : 2;
 	app->configuration.registerBoost4Step = 1;
+	app->configuration.reorderFourStep = 1;
 	app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 262144 : 524288;
 	app->configuration.vendorID = 0x8086;
 	app->configuration.useRaderUintLUT = 1;
@@ -957,6 +968,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	app->configuration.registerBoostNonPow2 = 0;
 	app->configuration.registerBoost = 1;
 	app->configuration.registerBoost4Step = 1;
+	app->configuration.reorderFourStep = 1;
 	app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 262144 : 524288;
 	app->configuration.vendorID = 0x1027f00;
 
@@ -1212,6 +1224,9 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	app->configuration.swapTo2Stage4Step = app->configuration.swapTo3Stage4Step;
 
     if (app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory){
+		app->configuration.registerBoost = 1;
+		app->configuration.registerBoostNonPow2 = 0;
+		app->configuration.registerBoost4Step = 1;
 		app->configuration.useLUT_4step = 1;
 		app->configuration.useLUT = 1;
 		app->configuration.swapTo3Stage4Step = 524288;
@@ -1293,7 +1308,6 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	if (inputLaunchConfiguration.makeForwardPlanOnly != 0)	app->configuration.makeForwardPlanOnly = inputLaunchConfiguration.makeForwardPlanOnly;
 	if (inputLaunchConfiguration.makeInversePlanOnly != 0)	app->configuration.makeInversePlanOnly = inputLaunchConfiguration.makeInversePlanOnly;
 
-	app->configuration.reorderFourStep = 1;
 	if (inputLaunchConfiguration.disableReorderFourStep != 0) {
 		app->configuration.reorderFourStep = 0;
 		//if ((app->configuration.swapTo3Stage4Step < 1048576) && (!app->configuration.quadDoubleDoublePrecision) && (!app->configuration.quadDoubleDoublePrecisionDoubleMemory)) app->configuration.swapTo3Stage4Step = 1048576;

@@ -803,7 +803,7 @@ typedef struct {
 	pfUINT kernelNum;
 	PfContainer fft_dim_full;
 	PfContainer stageStartSize;
-	PfContainer firstStageStartSize;
+	PfContainer firstStageStartSize; // innermost batching dimension
 	PfContainer fft_dim_x;
 	PfContainer dispatchZactualFFTSize;
 	int numStages;
@@ -818,7 +818,8 @@ typedef struct {
 	int outputBufferSeparateComplexComponents;
 	int kernelSeparateComplexComponents;
 
-	int reorderFourStep;
+	int reorderFourStep; // 1 - old (one transpose, used in multiupload R2C/R2R with 3 uploads), 2 - new (transpose at each upload, needs bufferSize = tempBufferSize), 3 - same as 1 but with different write pattern (no shared memory transposition)
+	int disableTransposeSharedReorderFourStepForWrite;
 	int storeSharedComplexComponentsSeparately;
 	int pushConstantsStructSize;
 	int performWorkGroupShift[VKFFT_MAX_FFT_DIMENSIONS];
@@ -859,6 +860,7 @@ typedef struct {
 	int resolveBankConflictFirstStages;
 	PfContainer sharedStrideBankConflictFirstStages;
 	PfContainer sharedStrideReadWriteConflict;
+	PfContainer sharedStride4StepLastAxisConflict;
 
 	PfContainer sharedStrideRaderFFT;
 	PfContainer sharedShiftRaderFFT;

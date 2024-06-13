@@ -212,6 +212,12 @@ static inline void appendGlobalToRegisters(VkFFTSpecializationConstantsLayout* s
 		sc->tempLen = sprintf(sc->tempStr, " = ");
 		PfAppendLine(sc);
 		PfAppendConversionStart(sc, out, bufferName);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+		if(sc->precision != 3){
+			sc->tempLen = sprintf(sc->tempStr, "__ldg(&");
+			PfAppendLine(sc);
+		}
+#endif
 #if(VKFFT_BACKEND==0)
 		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[0].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
 #else
@@ -263,6 +269,12 @@ static inline void appendGlobalToRegisters(VkFFTSpecializationConstantsLayout* s
 				}
 			}
 		}
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+		if(sc->precision != 3){
+			sc->tempLen = sprintf(sc->tempStr, ")");
+			PfAppendLine(sc);
+		}
+#endif
 		PfAppendConversionEnd(sc, out, bufferName);
 		sc->tempLen = sprintf(sc->tempStr, ";\n");
 		PfAppendLine(sc);
@@ -272,6 +284,12 @@ static inline void appendGlobalToRegisters(VkFFTSpecializationConstantsLayout* s
 		sc->tempLen = sprintf(sc->tempStr, " = ");
 		PfAppendLine(sc);
 		PfAppendConversionStart(sc, out, bufferName);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+		if(sc->precision != 3){
+			sc->tempLen = sprintf(sc->tempStr, "__ldg(&");
+			PfAppendLine(sc);
+		}
+#endif
 #if(VKFFT_BACKEND==0)
 		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[1].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
 #else
@@ -323,6 +341,12 @@ static inline void appendGlobalToRegisters(VkFFTSpecializationConstantsLayout* s
 				}
 			}
 		}
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+		if(sc->precision != 3){
+			sc->tempLen = sprintf(sc->tempStr, ")");
+			PfAppendLine(sc);
+		}
+#endif
 		PfAppendConversionEnd(sc, out, bufferName);
 		sc->tempLen = sprintf(sc->tempStr, ";\n");
 		PfAppendLine(sc);
@@ -335,6 +359,12 @@ static inline void appendGlobalToRegisters(VkFFTSpecializationConstantsLayout* s
 	sc->tempLen = sprintf(sc->tempStr, " = ");
 	PfAppendLine(sc);
 	PfAppendConversionStart(sc, out, bufferName);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+	if(sc->precision != 3){
+		sc->tempLen = sprintf(sc->tempStr, "__ldg(&");
+		PfAppendLine(sc);
+	}
+#endif
 	int dataSize = ((out->type % 10) == 3) ? sc->complexSize : sc->complexSize / 2;
 	if ((!(strcmp(bufferName->name, sc->inputsStruct.name))) && (sc->inputBufferBlockNum != 1)) {
 		sc->tempLen = sprintf(sc->tempStr, "inputBlocks[%s / %" PRIu64 "].%s[%s %% %" PRIu64 "]", inoutID->name, sc->inputBufferBlockSize / dataSize, bufferName->name, inoutID->name, sc->inputBufferBlockSize / dataSize);
@@ -349,6 +379,12 @@ static inline void appendGlobalToRegisters(VkFFTSpecializationConstantsLayout* s
 		sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
 	}
 	PfAppendLine(sc);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+	if(sc->precision != 3){
+		sc->tempLen = sprintf(sc->tempStr, ")");
+		PfAppendLine(sc);
+	}
+#endif
 	PfAppendConversionEnd(sc, out, bufferName);
 	sc->tempLen = sprintf(sc->tempStr, ";\n");
 	PfAppendLine(sc);
@@ -363,6 +399,12 @@ static inline void appendGlobalToRegisters_x(VkFFTSpecializationConstantsLayout*
 	sc->tempLen = sprintf(sc->tempStr, " = ");
 	PfAppendLine(sc);
 	PfAppendConversionStart(sc, &out->data.c[0], bufferName);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+	if(sc->precision != 3){
+		sc->tempLen = sprintf(sc->tempStr, "__ldg(&");
+		PfAppendLine(sc);
+	}
+#endif
 	if ((!(strcmp(bufferName->name, sc->inputsStruct.name))) && (sc->inputBufferBlockNum != 1)) {
 		sc->tempLen = sprintf(sc->tempStr, "inputBlocks[%s / %" PRIu64 "].%s[%s %% %" PRIu64 "]", inoutID->name, sc->inputBufferBlockSize / (sc->complexSize / 2), bufferName->name, inoutID->name, sc->inputBufferBlockSize / (sc->complexSize / 2));
 	}
@@ -376,6 +418,12 @@ static inline void appendGlobalToRegisters_x(VkFFTSpecializationConstantsLayout*
 		sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
 	}
 	PfAppendLine(sc);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+	if(sc->precision != 3){
+		sc->tempLen = sprintf(sc->tempStr, ")");
+		PfAppendLine(sc);
+	}
+#endif
 	PfAppendConversionEnd(sc, &out->data.c[0], bufferName);
 	sc->tempLen = sprintf(sc->tempStr, ";\n");
 	PfAppendLine(sc);
@@ -390,6 +438,12 @@ static inline void appendGlobalToRegisters_y(VkFFTSpecializationConstantsLayout*
 	sc->tempLen = sprintf(sc->tempStr, " = ");
 	PfAppendLine(sc);
 	PfAppendConversionStart(sc, &out->data.c[1], bufferName);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+	if(sc->precision != 3){
+		sc->tempLen = sprintf(sc->tempStr, "__ldg(&");
+		PfAppendLine(sc);
+	}
+#endif
 	if ((!(strcmp(bufferName->name, sc->inputsStruct.name))) && (sc->inputBufferBlockNum != 1)) {
 		sc->tempLen = sprintf(sc->tempStr, "inputBlocks[%s / %" PRIu64 "].%s[%s %% %" PRIu64 "]", inoutID->name, sc->inputBufferBlockSize / (sc->complexSize / 2), bufferName->name, inoutID->name, sc->inputBufferBlockSize / (sc->complexSize / 2));
 	}
@@ -403,6 +457,12 @@ static inline void appendGlobalToRegisters_y(VkFFTSpecializationConstantsLayout*
 		sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
 	}
 	PfAppendLine(sc);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+	if(sc->precision != 3){
+		sc->tempLen = sprintf(sc->tempStr, ")");
+		PfAppendLine(sc);
+	}
+#endif
 	PfAppendConversionEnd(sc, &out->data.c[1], bufferName);
 	sc->tempLen = sprintf(sc->tempStr, ";\n");
 	PfAppendLine(sc);
@@ -640,6 +700,12 @@ static inline void appendGlobalToShared(VkFFTSpecializationConstantsLayout* sc, 
 		sc->tempLen = sprintf(sc->tempStr, " = ");
 		PfAppendLine(sc);
 		PfAppendConversionStart(sc, &sc->sdataStruct, bufferName);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+		if(sc->precision != 3){
+			sc->tempLen = sprintf(sc->tempStr, "__ldg(&");
+			PfAppendLine(sc);
+		}
+#endif
 #if(VKFFT_BACKEND==0)
 		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[0].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
 #else
@@ -691,6 +757,12 @@ static inline void appendGlobalToShared(VkFFTSpecializationConstantsLayout* sc, 
 				}
 			}
 		}
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+		if(sc->precision != 3){
+			sc->tempLen = sprintf(sc->tempStr, ")");
+			PfAppendLine(sc);
+		}
+#endif
 		PfAppendConversionEnd(sc, &sc->sdataStruct, bufferName);
 		sc->tempLen = sprintf(sc->tempStr, ";\n");
 		PfAppendLine(sc);
@@ -705,6 +777,12 @@ static inline void appendGlobalToShared(VkFFTSpecializationConstantsLayout* sc, 
 		sc->tempLen = sprintf(sc->tempStr, " = ");
 		PfAppendLine(sc);
 		PfAppendConversionStart(sc, &sc->sdataStruct, bufferName);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+		if(sc->precision != 3){
+			sc->tempLen = sprintf(sc->tempStr, "__ldg(&");
+			PfAppendLine(sc);
+		}
+#endif
 #if(VKFFT_BACKEND==0)
 		sc->tempLen = sprintf(sc->tempStr, "%sBlocks[1].%s[%s +", bufferName->name, bufferName->name, inoutID->name);
 #else
@@ -756,6 +834,12 @@ static inline void appendGlobalToShared(VkFFTSpecializationConstantsLayout* sc, 
 				}
 			}
 		}
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+		if(sc->precision != 3){
+			sc->tempLen = sprintf(sc->tempStr, ")");
+			PfAppendLine(sc);
+		}
+#endif
 		PfAppendConversionEnd(sc, &sc->sdataStruct, bufferName);
 		sc->tempLen = sprintf(sc->tempStr, ";\n");
 		PfAppendLine(sc);
@@ -777,6 +861,12 @@ static inline void appendGlobalToShared(VkFFTSpecializationConstantsLayout* sc, 
 	sc->tempLen = sprintf(sc->tempStr, " = ");
 	PfAppendLine(sc);
 	PfAppendConversionStart(sc, &sc->sdataStruct, bufferName);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+	if(sc->precision != 3){
+		sc->tempLen = sprintf(sc->tempStr, "__ldg(&");
+		PfAppendLine(sc);
+	}
+#endif
 	if ((!(strcmp(bufferName->name, sc->inputsStruct.name))) && (sc->inputBufferBlockNum != 1)) {
 		sc->tempLen = sprintf(sc->tempStr, "inputBlocks[%s / %" PRIu64 "].%s[%s %% %" PRIu64 "]", inoutID->name, sc->inputBufferBlockSize / sc->complexSize, bufferName->name, inoutID->name, sc->inputBufferBlockSize / sc->complexSize);
 	}
@@ -790,6 +880,12 @@ static inline void appendGlobalToShared(VkFFTSpecializationConstantsLayout* sc, 
 		sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
 	}
 	PfAppendLine(sc);
+#if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
+	if(sc->precision != 3){
+		sc->tempLen = sprintf(sc->tempStr, ")");
+		PfAppendLine(sc);
+	}
+#endif
 	PfAppendConversionEnd(sc, &sc->sdataStruct, bufferName);
 	sc->tempLen = sprintf(sc->tempStr, ";\n");
 	PfAppendLine(sc);

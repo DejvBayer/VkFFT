@@ -256,7 +256,12 @@ static inline VkFFTResult VkFFT_AllocateLUT(VkFFTApplication* app, VkFFTPlan* FF
 		}
 
 		pfUINT currentLUTPos = maxStageSum;
-		if ((app->configuration.useLUT_4step == 1) && (axis->specializationConstants.axis_upload_id > 0)) currentLUTPos += axis->specializationConstants.stageStartSize.data.i * axis->specializationConstants.fftDim.data.i;
+		if ((app->configuration.useLUT_4step == 1) && (axis->specializationConstants.axis_upload_id > 0)) {
+			if (axis->specializationConstants.reorderFourStep == 2) 
+				currentLUTPos += axis->specializationConstants.fft_dim_full.data.i / axis->specializationConstants.firstStageStartSize.data.i;
+			else
+				currentLUTPos += axis->specializationConstants.stageStartSize.data.i * axis->specializationConstants.fftDim.data.i;
+		}
 		pfUINT disableReferenceLUT_DCT = 0;
 		if ((((((axis->specializationConstants.performDCT == 3) || (axis->specializationConstants.performDST == 3)) && (axis->specializationConstants.actualInverse == 0)) || (((axis->specializationConstants.performDCT == 2) || (axis->specializationConstants.performDST == 2)) && (axis->specializationConstants.actualInverse == 1)))) || (((((axis->specializationConstants.performDCT == 2) || (axis->specializationConstants.performDST == 2)) && (axis->specializationConstants.actualInverse == 0)) || (((axis->specializationConstants.performDCT == 3) || (axis->specializationConstants.performDST == 3)) && (axis->specializationConstants.actualInverse == 1))))) {
 			disableReferenceLUT_DCT = 1;
@@ -466,17 +471,18 @@ static inline VkFFTResult VkFFT_AllocateLUT(VkFFTApplication* app, VkFFTPlan* FF
 				}
 			}
 			if ((axis->specializationConstants.axis_upload_id > 0) && (app->configuration.useLUT_4step == 1)) {
-				for (pfUINT i = 0; i < (pfUINT)axis->specializationConstants.stageStartSize.data.i; i++) {
+				pfUINT size_local_2d_split = (axis->specializationConstants.reorderFourStep == 2) ? axis->specializationConstants.fft_dim_full.data.i / axis->specializationConstants.firstStageStartSize.data.i / axis->specializationConstants.fftDim.data.i : axis->specializationConstants.stageStartSize.data.i;
+				for (pfUINT i = 0; i < size_local_2d_split; i++) {
 					for (pfUINT j = 0; j < (pfUINT)axis->specializationConstants.fftDim.data.i; j++) {
-						pfLD angle = pfFPinit("2.0") * double_PI * ((i * j) / (pfLD)(axis->specializationConstants.stageStartSize.data.i * axis->specializationConstants.fftDim.data.i));
+						pfLD angle = pfFPinit("2.0") * double_PI * ((i * j) / (pfLD)(size_local_2d_split * axis->specializationConstants.fftDim.data.i));
 						in.data.d = pfcos(angle);
 						PfConvToDoubleDouble(&axis->specializationConstants, &temp1, &in);
-						tempLUT[maxStageSum * 4 + 4 * (i + j * axis->specializationConstants.stageStartSize.data.i)] = (double)temp1.data.dd[0].data.d;
-						tempLUT[maxStageSum * 4 + 4 * (i + j * axis->specializationConstants.stageStartSize.data.i) + 1] = (double)temp1.data.dd[1].data.d;
+						tempLUT[maxStageSum * 4 + 4 * (i + j * size_local_2d_split)] = (double)temp1.data.dd[0].data.d;
+						tempLUT[maxStageSum * 4 + 4 * (i + j * size_local_2d_split) + 1] = (double)temp1.data.dd[1].data.d;
 						in.data.d = pfsin(angle);
 						PfConvToDoubleDouble(&axis->specializationConstants, &temp1, &in);
-						tempLUT[maxStageSum * 4 + 4 * (i + j * axis->specializationConstants.stageStartSize.data.i) + 2] = (double)temp1.data.dd[0].data.d;
-						tempLUT[maxStageSum * 4 + 4 * (i + j * axis->specializationConstants.stageStartSize.data.i) + 3] = (double)temp1.data.dd[1].data.d;
+						tempLUT[maxStageSum * 4 + 4 * (i + j * size_local_2d_split) + 2] = (double)temp1.data.dd[0].data.d;
+						tempLUT[maxStageSum * 4 + 4 * (i + j * size_local_2d_split) + 3] = (double)temp1.data.dd[1].data.d;
 					}
 				}
 			}
@@ -789,11 +795,12 @@ static inline VkFFTResult VkFFT_AllocateLUT(VkFFTApplication* app, VkFFTPlan* FF
 				}
 			}
 			if ((axis->specializationConstants.axis_upload_id > 0) && (app->configuration.useLUT_4step == 1)) {
-				for (pfUINT i = 0; i < (pfUINT)axis->specializationConstants.stageStartSize.data.i; i++) {
+				pfUINT size_local_2d_split = (axis->specializationConstants.reorderFourStep == 2) ? axis->specializationConstants.fft_dim_full.data.i / axis->specializationConstants.firstStageStartSize.data.i / axis->specializationConstants.fftDim.data.i : axis->specializationConstants.stageStartSize.data.i;
+				for (pfUINT i = 0; i < size_local_2d_split; i++) {
 					for (pfUINT j = 0; j < (pfUINT)axis->specializationConstants.fftDim.data.i; j++) {
-						pfLD angle = 2 * double_PI * ((i * j) / (pfLD)(axis->specializationConstants.stageStartSize.data.i * axis->specializationConstants.fftDim.data.i));
-						tempLUT[maxStageSum * 2 + 2 * (i + j * axis->specializationConstants.stageStartSize.data.i)] = (double)pfcos(angle);
-						tempLUT[maxStageSum * 2 + 2 * (i + j * axis->specializationConstants.stageStartSize.data.i) + 1] = (double)pfsin(angle);
+						pfLD angle = 2 * double_PI * ((i * j) / (pfLD)(size_local_2d_split * axis->specializationConstants.fftDim.data.i));
+						tempLUT[maxStageSum * 2 + 2 * (i + j * size_local_2d_split)] = (double)pfcos(angle);
+						tempLUT[maxStageSum * 2 + 2 * (i + j * size_local_2d_split) + 1] = (double)pfsin(angle);
 					}
 				}
 			}
@@ -1085,11 +1092,12 @@ static inline VkFFTResult VkFFT_AllocateLUT(VkFFTApplication* app, VkFFTPlan* FF
 			}
 
 			if ((axis->specializationConstants.axis_upload_id > 0) && (app->configuration.useLUT_4step == 1)) {
-				for (pfUINT i = 0; i < (pfUINT)axis->specializationConstants.stageStartSize.data.i; i++) {
+				pfUINT size_local_2d_split = (axis->specializationConstants.reorderFourStep == 2) ? axis->specializationConstants.fft_dim_full.data.i / axis->specializationConstants.firstStageStartSize.data.i / axis->specializationConstants.fftDim.data.i : axis->specializationConstants.stageStartSize.data.i;
+				for (pfUINT i = 0; i < size_local_2d_split; i++) {
 					for (pfUINT j = 0; j < (pfUINT)axis->specializationConstants.fftDim.data.i; j++) {
-						double angle = 2 * double_PI * ((i * j) / (double)(axis->specializationConstants.stageStartSize.data.i * axis->specializationConstants.fftDim.data.i));
-						tempLUT[maxStageSum * 2 + 2 * (i + j * axis->specializationConstants.stageStartSize.data.i)] = (float)pfcos(angle);
-						tempLUT[maxStageSum * 2 + 2 * (i + j * axis->specializationConstants.stageStartSize.data.i) + 1] = (float)pfsin(angle);
+						double angle = 2 * double_PI * ((i * j) / (double)(size_local_2d_split * axis->specializationConstants.fftDim.data.i));
+						tempLUT[maxStageSum * 2 + 2 * (i + j * size_local_2d_split)] = (float)pfcos(angle);
+						tempLUT[maxStageSum * 2 + 2 * (i + j * size_local_2d_split) + 1] = (float)pfsin(angle);
 					}
 				}
 			}

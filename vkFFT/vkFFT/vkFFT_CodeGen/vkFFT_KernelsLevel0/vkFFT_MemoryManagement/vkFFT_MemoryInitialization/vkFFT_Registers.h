@@ -341,7 +341,7 @@ static inline void appendRegisterInitialization(VkFFTSpecializationConstantsLayo
 		PfDefine(sc, &sc->angle, name);
 		PfSetToZero(sc, &sc->angle);
 	}
-	if (((sc->stageStartSize.data.i > 1) && (!((sc->stageStartSize.data.i > 1) && (!sc->reorderFourStep) && (sc->inverse)))) || (((sc->stageStartSize.data.i > 1) && (!sc->reorderFourStep) && (sc->inverse))) || (sc->performDCT) || (sc->performDST)) {
+	if (((sc->axis_upload_id > 0) && (!((sc->axis_upload_id > 0) && (!sc->reorderFourStep) && (sc->inverse)))) || (((sc->axis_upload_id > 0) && (!sc->reorderFourStep) && (sc->inverse))) || (sc->performDCT) || (sc->performDST)) {
 		sc->mult.type = 100 + sc->vecTypeCode;
 		PfAllocateContainerFlexible(sc, &sc->mult, 50);
 		sprintf(name, "mult");
@@ -632,7 +632,7 @@ static inline void freeRegisterInitialization(VkFFTSpecializationConstantsLayout
 	else {
 		PfDeallocateContainer(sc, &sc->angle);
 	}
-	if (((sc->stageStartSize.data.i > 1) && (!((sc->stageStartSize.data.i > 1) && (!sc->reorderFourStep) && (sc->inverse)))) || (((sc->stageStartSize.data.i > 1) && (!sc->reorderFourStep) && (sc->inverse))) || (sc->performDCT) || (sc->performDST)) {
+	if (((sc->axis_upload_id > 0) && (!((sc->axis_upload_id > 0) && (!sc->reorderFourStep) && (sc->inverse)))) || (((sc->axis_upload_id > 0) && (!sc->reorderFourStep) && (sc->inverse))) || (sc->performDCT) || (sc->performDST)) {
 		PfDeallocateContainer(sc, &sc->mult);
 	}
 	return;

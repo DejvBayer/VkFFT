@@ -2580,6 +2580,7 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 		if (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] % (i * i) == 0)
 			registerBoost = i;
 	}
+	if ((app->configuration.vendorID == 0x1002) && (axis_id != 0)) registerBoost = 1;
 	if ((axis_id == nonStridedAxisId) && (!app->configuration.performConvolution)) maxSingleSizeNonStrided *= registerBoost;
 	int maxSequenceLengthSharedMemoryStrided = (app->configuration.coalescedMemory > complexSize) ? usedSharedMemory / ((int)app->configuration.coalescedMemory) : usedSharedMemory / complexSize;
 	int maxSingleSizeStrided = (!app->configuration.performConvolution) ? maxSequenceLengthSharedMemoryStrided * registerBoost : maxSequenceLengthSharedMemoryStrided;
@@ -2734,6 +2735,13 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 						if ((sqrtSequence - i <= maxSingleSizeStridedHalfBandwidth) && (FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrtSequence - i) <= maxSingleSizeStridedHalfBandwidth)) {
 							locAxisSplit[0] = FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrtSequence - i);
 							locAxisSplit[1] = sqrtSequence - i;
+							if ((axis_id == nonStridedAxisId) && (app->configuration.reorderFourStep == 2)) {
+								if (locAxisSplit[1] > locAxisSplit[0]) {
+									int swap = (int)locAxisSplit[0];
+									locAxisSplit[0] = locAxisSplit[1];
+									locAxisSplit[1] = swap;
+								}
+							}
 							i = sqrtSequence;
 							successSplit = 1;
 						}
@@ -2837,6 +2845,13 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 				locAxisSplit[1] = locAxisSplit[2];
 				locAxisSplit[2] = swap;
 			}
+			if ((axis_id == nonStridedAxisId) && (app->configuration.reorderFourStep == 2)) {
+				if (locAxisSplit[2] > locAxisSplit[0]) {
+					int swap = (int)locAxisSplit[0];
+					locAxisSplit[0] = locAxisSplit[2];
+					locAxisSplit[2] = swap;
+				}
+			}
 		}
 		else {
 			int successSplit = 0;
@@ -2870,6 +2885,18 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 									locAxisSplit[0] = FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] / (sqrt3Sequence - i) / (sqrt2Sequence - j);
 									locAxisSplit[1] = sqrt3Sequence - i;
 									locAxisSplit[2] = sqrt2Sequence - j;
+									if ((axis_id == nonStridedAxisId) && (app->configuration.reorderFourStep == 2)) {
+										if (locAxisSplit[2] > locAxisSplit[1]) {
+											int swap = (int)locAxisSplit[1];
+											locAxisSplit[1] = locAxisSplit[2];
+											locAxisSplit[2] = swap;
+										}
+										if (locAxisSplit[2] > locAxisSplit[0]) {
+											int swap = (int)locAxisSplit[0];
+											locAxisSplit[0] = locAxisSplit[2];
+											locAxisSplit[2] = swap;
+										}
+									}
 									i = sqrt3Sequence;
 									j = sqrt2Sequence;
 									successSplit = 1;

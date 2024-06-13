@@ -62,10 +62,10 @@ static inline void appendKernelStart(VkFFTSpecializationConstantsLayout* sc, int
 	
 	sc->tempLen = sprintf(sc->tempStr, "extern \"C\" __global__ void __launch_bounds__(%" PRIi64 ") VkFFT_main (", sc->localSize[0].data.i * sc->localSize[1].data.i * sc->localSize[2].data.i);
 	PfAppendLine(sc);
-	sc->tempLen = sprintf(sc->tempStr, "%s* inputs", inputMemoryType->name);
+	sc->tempLen = sprintf(sc->tempStr, "const %s* inputs", inputMemoryType->name);
 	PfAppendLine(sc);
 	if (sc->inputBufferSeparateComplexComponents){
-		sc->tempLen = sprintf(sc->tempStr, ", %s* inputs_imag", inputMemoryType->name);
+		sc->tempLen = sprintf(sc->tempStr, ", const %s* inputs_imag", inputMemoryType->name);
 		PfAppendLine(sc);
 	}
 	sc->tempLen = sprintf(sc->tempStr, ", %s* outputs", outputMemoryType->name);
@@ -76,29 +76,29 @@ static inline void appendKernelStart(VkFFTSpecializationConstantsLayout* sc, int
 	}
 	if (sc->convolutionStep) {
 		if (sc->kernelSeparateComplexComponents){
-			sc->tempLen = sprintf(sc->tempStr, ", %s* kernel_obj", kernelMemoryType->name);
+			sc->tempLen = sprintf(sc->tempStr, ", const %s* __restrict__ kernel_obj", kernelMemoryType->name);
 			PfAppendLine(sc);
-			sc->tempLen = sprintf(sc->tempStr, ", %s* kernel_obj_imag", kernelMemoryType->name);
+			sc->tempLen = sprintf(sc->tempStr, ", const %s* __restrict__ kernel_obj_imag", kernelMemoryType->name);
 			PfAppendLine(sc);
 		}else{
-			sc->tempLen = sprintf(sc->tempStr, ", %s* kernel_obj", kernelMemoryType->name);
+			sc->tempLen = sprintf(sc->tempStr, ", const %s* __restrict__ kernel_obj", kernelMemoryType->name);
 			PfAppendLine(sc);
 		}
 	}
 	if (sc->LUT) {
-		sc->tempLen = sprintf(sc->tempStr, ", %s* twiddleLUT", vecType->name);
+		sc->tempLen = sprintf(sc->tempStr, ", const %s* __restrict__ twiddleLUT", vecType->name);
 		PfAppendLine(sc);
 	}
 	if (sc->raderUintLUT) {
-		sc->tempLen = sprintf(sc->tempStr, ", %s* g_pow", uintType32->name);
+		sc->tempLen = sprintf(sc->tempStr, ", const %s* __restrict__ g_pow", uintType32->name);
 		PfAppendLine(sc);
 	}
 	if (sc->BluesteinConvolutionStep) {
-		sc->tempLen = sprintf(sc->tempStr, ", %s* BluesteinConvolutionKernel", vecType->name);
+		sc->tempLen = sprintf(sc->tempStr, ", const %s* __restrict__ BluesteinConvolutionKernel", vecType->name);
 		PfAppendLine(sc);
 	}
 	if (sc->BluesteinPreMultiplication || sc->BluesteinPostMultiplication) {
-		sc->tempLen = sprintf(sc->tempStr, ", %s* BluesteinMultiplication", vecType->name);
+		sc->tempLen = sprintf(sc->tempStr, ", const %s* __restrict__ BluesteinMultiplication", vecType->name);
 		PfAppendLine(sc);
 	}
 	if (sc->pushConstantsStructSize > 0) {

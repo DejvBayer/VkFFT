@@ -244,6 +244,7 @@ static inline VkFFTResult VkFFTGeneratePhaseVectors(VkFFTApplication* app, VkFFT
 		kernelPreparationConfiguration.size[0] = FFTPlan->actualFFTSizePerAxis[axis_id][axis_id];
 		kernelPreparationConfiguration.size[1] = 1;
 		kernelPreparationConfiguration.size[2] = 1;
+		kernelPreparationConfiguration.coalescedMemory = app->configuration.coalescedMemory;
 		kernelPreparationConfiguration.doublePrecision = (app->configuration.doublePrecision || app->configuration.doublePrecisionFloatMemory);
 		kernelPreparationConfiguration.quadDoubleDoublePrecision = (app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory);
 		kernelPreparationConfiguration.useLUT = 1;
