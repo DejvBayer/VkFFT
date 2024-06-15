@@ -217,6 +217,9 @@ typedef struct {
 	pfUINT omitDimension[VKFFT_MAX_FFT_DIMENSIONS];//disable FFT for this dimension (0 - FFT enabled, 1 - FFT disabled). Default 0. Doesn't work for R2C dimension 0 for now. Doesn't work with convolutions.
 	int performBandwidthBoost;//try to reduce coalsesced number by a factor of X to get bigger sequence in one upload for strided axes. Default: 2 for DCT, 2 for Bluestein's algorithm, 0 otherwise 
 	pfUINT groupedBatch[VKFFT_MAX_FFT_DIMENSIONS];// try to force this many FFTs to be perfromed by one threadblock for each dimension
+	int optimizePow2StridesTempBuffer; //try to break power of 2 strides with using a custom-strided tempBuffer for intermediate calculations (requires more memory if the transform was done without it before). (-1 - off, 0 - auto, 1 - on, 2 - on (automatically filled, do not use manually)). Default 1 on AMD, -1 otherwise. 
+	pfUINT inStridePadTempBuffer; // if optimizePow2StridesTempBuffer is 1, pad this number of elements by (outStridePadTempBuffer-inStridePadTempBuffer) number of elements. Has to be a power of 2. Default 512.
+	pfUINT outStridePadTempBuffer; // if optimizePow2StridesTempBuffer is 1, pad every inStridePadTempBuffer number of elements to outStridePadTempBuffer number of elements. Default 513.
 
 	pfUINT doublePrecision; //perform calculations in double precision (0 - off, 1 - on).
 	pfUINT quadDoubleDoublePrecision; //perform calculations in double-double quad precision (0 - off, 1 - on).
@@ -821,6 +824,14 @@ typedef struct {
 	int reorderFourStep; // 1 - old (one transpose, used in multiupload R2C/R2R with 3 uploads), 2 - new (transpose at each upload, needs bufferSize = tempBufferSize), 3 - same as 1 but with different write pattern (no shared memory transposition)
 	int disableTransposeSharedReorderFourStepForWrite;
 	int storeSharedComplexComponentsSeparately;
+
+	int optimizePow2StridesTempBuffer;
+	pfUINT inStridePadTempBuffer;
+	pfUINT outStridePadTempBuffer;
+
+	int tempBufferInput;
+	int tempBufferOutput;
+
 	int pushConstantsStructSize;
 	int performWorkGroupShift[VKFFT_MAX_FFT_DIMENSIONS];
 	int performPostCompilationInputOffset;

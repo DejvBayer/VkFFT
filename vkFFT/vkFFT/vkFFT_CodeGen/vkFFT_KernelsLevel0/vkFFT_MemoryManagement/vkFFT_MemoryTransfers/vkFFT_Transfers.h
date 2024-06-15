@@ -376,7 +376,10 @@ static inline void appendGlobalToRegisters(VkFFTSpecializationConstantsLayout* s
 		sc->tempLen = sprintf(sc->tempStr, "kernelBlocks[%s / %" PRIu64 "].%s[%s %% %" PRIu64 "]", inoutID->name, sc->kernelBlockSize / dataSize, bufferName->name, inoutID->name, sc->kernelBlockSize / dataSize);
 	}
 	else {
-		sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
+		if (sc->tempBufferInput && sc->optimizePow2StridesTempBuffer && (!(strcmp(bufferName->name, sc->inputsStruct.name))))
+			sc->tempLen = sprintf(sc->tempStr, "%s[(%s & %" PRIu64 ") + (%s >> %" PRIu64 ") * %" PRIu64 "]", bufferName->name, inoutID->name, sc->inStridePadTempBuffer-1, inoutID->name, (uint64_t)log2(sc->inStridePadTempBuffer), sc->outStridePadTempBuffer);
+		else
+			sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
 	}
 	PfAppendLine(sc);
 #if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
@@ -614,7 +617,10 @@ static inline void appendRegistersToGlobal(VkFFTSpecializationConstantsLayout* s
 		sc->tempLen = sprintf(sc->tempStr, "kernelBlocks[%s / %" PRIu64 "].%s[%s %% %" PRIu64 "]", inoutID->name, sc->kernelBlockSize / dataSize, bufferName->name, inoutID->name, sc->kernelBlockSize / dataSize);
 	}
 	else {
-		sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
+		if (sc->tempBufferOutput && sc->optimizePow2StridesTempBuffer && (!(strcmp(bufferName->name, sc->outputsStruct.name))))
+			sc->tempLen = sprintf(sc->tempStr, "%s[(%s & %" PRIu64 ") + (%s >> %" PRIu64 ") * %" PRIu64 "]", bufferName->name, inoutID->name, sc->inStridePadTempBuffer-1, inoutID->name, (uint64_t)log2(sc->inStridePadTempBuffer), sc->outStridePadTempBuffer);
+		else
+			sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
 	}
 	PfAppendLine(sc);
 	sc->tempLen = sprintf(sc->tempStr, " = ");
@@ -877,7 +883,10 @@ static inline void appendGlobalToShared(VkFFTSpecializationConstantsLayout* sc, 
 		sc->tempLen = sprintf(sc->tempStr, "kernelBlocks[%s / %" PRIu64 "].%s[%s %% %" PRIu64 "]", inoutID->name, sc->kernelBlockSize / sc->complexSize, bufferName->name, inoutID->name, sc->kernelBlockSize / sc->complexSize);
 	}
 	else {
-		sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
+		if (sc->tempBufferInput && sc->optimizePow2StridesTempBuffer && (!(strcmp(bufferName->name, sc->inputsStruct.name))))
+			sc->tempLen = sprintf(sc->tempStr, "%s[(%s & %" PRIu64 ") + (%s >> %" PRIu64 ") * %" PRIu64 "]", bufferName->name, inoutID->name, sc->inStridePadTempBuffer-1, inoutID->name, (uint64_t)log2(sc->inStridePadTempBuffer), sc->outStridePadTempBuffer);
+		else
+			sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
 	}
 	PfAppendLine(sc);
 #if ((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2))
@@ -1053,7 +1062,10 @@ static inline void appendSharedToGlobal(VkFFTSpecializationConstantsLayout* sc, 
 		sc->tempLen = sprintf(sc->tempStr, "kernelBlocks[%s / %" PRIu64 "].%s[%s %% %" PRIu64 "]", inoutID->name, sc->kernelBlockSize / sc->complexSize, bufferName->name, inoutID->name, sc->kernelBlockSize / sc->complexSize);
 	}
 	else {
-		sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
+		if (sc->tempBufferOutput && sc->optimizePow2StridesTempBuffer && (!(strcmp(bufferName->name, sc->outputsStruct.name))))
+			sc->tempLen = sprintf(sc->tempStr, "%s[(%s & %" PRIu64 ") + (%s >> %" PRIu64 ") * %" PRIu64 "]", bufferName->name, inoutID->name, sc->inStridePadTempBuffer-1, inoutID->name, (uint64_t)log2(sc->inStridePadTempBuffer), sc->outStridePadTempBuffer);
+		else
+			sc->tempLen = sprintf(sc->tempStr, "%s[%s]", bufferName->name, inoutID->name);
 	}
 	PfAppendLine(sc);
 	sc->tempLen = sprintf(sc->tempStr, " = ");

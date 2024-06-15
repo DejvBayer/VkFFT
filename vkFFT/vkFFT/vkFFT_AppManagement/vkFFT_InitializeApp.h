@@ -525,6 +525,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		app->configuration.registerBoost4Step = 1;
 		app->configuration.reorderFourStep = 3;
 		app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 262144 : 524288;
+		app->configuration.optimizePow2StridesTempBuffer = 2;
 		break;
 	default:
 		app->configuration.coalescedMemory = (app->configuration.halfPrecision) ? 128 : 64;
@@ -761,6 +762,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	app->configuration.reorderFourStep = 3;
 	app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 1048576 : 2097152;
 	app->configuration.vendorID = 0x1002;
+	app->configuration.optimizePow2StridesTempBuffer = 2;
 #elif(VKFFT_BACKEND==3)
 	cl_int res = 0;
 	if (inputLaunchConfiguration.device == 0) {
@@ -854,6 +856,7 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		app->configuration.registerBoost4Step = 1;
 		app->configuration.reorderFourStep = 3;
 		app->configuration.swapTo3Stage4Step = (app->configuration.doublePrecision || app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory) ? 262144 : 524288;
+		app->configuration.optimizePow2StridesTempBuffer = 2;
 		break;
 	default:
 		app->configuration.coalescedMemory = (app->configuration.halfPrecision) ? 128 : 64;
@@ -1200,6 +1203,8 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	if (inputLaunchConfiguration.outputBufferOffsetImaginary != 0)	app->configuration.outputBufferOffsetImaginary = inputLaunchConfiguration.outputBufferOffsetImaginary;
 	if (inputLaunchConfiguration.kernelOffsetImaginary != 0)	app->configuration.kernelOffsetImaginary = inputLaunchConfiguration.kernelOffsetImaginary;
 	
+	if (((app->configuration.bufferNum > 1) && (!app->configuration.bufferSeparateComplexComponents)) || (app->configuration.tempBufferNum > 1)
+		|| ((app->configuration.inputBufferNum > 1) && (!app->configuration.inputBufferSeparateComplexComponents)) || ((app->configuration.outputBufferNum > 1) && (!app->configuration.outputBufferSeparateComplexComponents))) app->configuration.optimizePow2StridesTempBuffer = 0;
 	//set optional parameters:
 	if (inputLaunchConfiguration.maxThreadsNum != 0)	app->configuration.maxThreadsNum = inputLaunchConfiguration.maxThreadsNum;
 	if (inputLaunchConfiguration.coalescedMemory != 0)	app->configuration.coalescedMemory = inputLaunchConfiguration.coalescedMemory;
@@ -1481,7 +1486,12 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
     for (pfUINT i = 0; i < app->configuration.FFTdim; i++) {
         if (inputLaunchConfiguration.groupedBatch[i] != 0)	app->configuration.groupedBatch[i] = inputLaunchConfiguration.groupedBatch[i];
     }
-	
+	if (inputLaunchConfiguration.optimizePow2StridesTempBuffer != 0)	app->configuration.optimizePow2StridesTempBuffer = inputLaunchConfiguration.optimizePow2StridesTempBuffer;
+	app->configuration.inStridePadTempBuffer = 32768;
+	if (inputLaunchConfiguration.inStridePadTempBuffer != 0)	app->configuration.inStridePadTempBuffer = inputLaunchConfiguration.inStridePadTempBuffer;
+	app->configuration.outStridePadTempBuffer = 32768 + 64;
+	if (inputLaunchConfiguration.outStridePadTempBuffer != 0)	app->configuration.outStridePadTempBuffer = inputLaunchConfiguration.outStridePadTempBuffer;
+
 	if (inputLaunchConfiguration.devicePageSize != 0)	app->configuration.devicePageSize = inputLaunchConfiguration.devicePageSize;
 	if (inputLaunchConfiguration.localPageSize != 0)	app->configuration.localPageSize = inputLaunchConfiguration.localPageSize;
 	if (inputLaunchConfiguration.keepShaderCode != 0)	app->configuration.keepShaderCode = inputLaunchConfiguration.keepShaderCode;

@@ -2956,6 +2956,10 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 		if (app->configuration.userTempBuffer)
 			return VKFFT_ERROR_INVALID_user_tempBuffer_too_small;
 		app->configuration.tempBufferSize[0] = tempBufferSize;
+
+		if (app->configuration.optimizePow2StridesTempBuffer >= 1) {
+			app->configuration.tempBufferSize[0] = ((app->configuration.tempBufferSize[0] + app->configuration.inStridePadTempBuffer - 1) / app->configuration.inStridePadTempBuffer) * app->configuration.outStridePadTempBuffer;
+		}
 	}
 	if (((app->configuration.reorderFourStep) && (!app->useBluesteinFFT[axis_id]))) {
 		for (int i = 0; i < numPasses; i++) {

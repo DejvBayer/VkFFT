@@ -210,6 +210,33 @@ static inline VkFFTResult VkFFTPlanAxis(VkFFTApplication* app, VkFFTPlan* FFTPla
 	axis->specializationConstants.mergeSequencesR2C = ((!axis->specializationConstants.performR2CmultiUpload) && (!axis->specializationConstants.performR2RmultiUpload) && ((axis->specializationConstants.fft_dim_full.data.i + additionalR2Cshared) <= maxSequenceLengthSharedMemory) && (FFTPlan->actualFFTSizePerAxis[axis_id][1] > 1) && ((FFTPlan->actualPerformR2CPerAxis[axis_id]) || ((((axis->specializationConstants.performDCT == 3) || (axis->specializationConstants.performDST == 3)) || ((axis->specializationConstants.performDCT == 2) || (axis->specializationConstants.performDST == 2)) || ((axis->specializationConstants.performDCT == 1) || (axis->specializationConstants.performDST == 1)) || (((axis->specializationConstants.performDCT == 4) || (axis->specializationConstants.performDST == 4)) && ((app->configuration.size[axis_id] % 2) != 0))) && (axis_id == 0)))) ? (1 - (int)app->configuration.disableMergeSequencesR2C) : 0;
 	
 	if ((axis->specializationConstants.reorderFourStep == 2) && ((FFTPlan->numAxisUploads[axis_id] == 3) && ((axis->specializationConstants.performR2CmultiUpload && (!FFTPlan->bigSequenceEvenR2C)) || axis->specializationConstants.performR2RmultiUpload))) axis->specializationConstants.reorderFourStep = 3;//disable second version of transpositions in some cases
+	int numOmittedDimensions = 0;
+	uint64_t estimatedStride = 1;
+	uint64_t estimatedSystemSize = 1;
+	uint64_t forceEnable3upload = 0;
+
+	for (int i = 0; i < app->configuration.FFTdim; i++) {
+		if (app->configuration.omitDimension[i]) numOmittedDimensions++;
+		else
+		{
+			if (FFTPlan->numAxisUploads[i] > 2) {
+				forceEnable3upload = 1;
+			}
+		}
+		estimatedSystemSize *= FFTPlan->actualFFTSizePerAxis[i][i];
+		if (((estimatedSystemSize % 2048) == 0) && (estimatedStride == 1)) estimatedStride = estimatedSystemSize;
+	}
+
+	if (((estimatedSystemSize < 2097152) || (FFTPlan->bigSequenceEvenR2C) || ((((estimatedSystemSize / estimatedStride) < 100) || ((app->configuration.FFTdim - numOmittedDimensions) <= 1)) && (!(forceEnable3upload && ((estimatedSystemSize % 2048) == 0))))) && (app->configuration.optimizePow2StridesTempBuffer == 2)) app->configuration.optimizePow2StridesTempBuffer = 0;
+	
+	if (app->configuration.optimizePow2StridesTempBuffer >= 1) {
+		app->configuration.allocateTempBuffer = 1;
+		axis->specializationConstants.optimizePow2StridesTempBuffer = 1;
+		axis->specializationConstants.inStridePadTempBuffer = app->configuration.inStridePadTempBuffer;
+		axis->specializationConstants.outStridePadTempBuffer = app->configuration.outStridePadTempBuffer;
+		if (axis->specializationConstants.reorderFourStep == 2) axis->specializationConstants.reorderFourStep = 1;
+	}
+	
 	if ((app->configuration.vendorID == 0x1002) && ((FFTPlan->numAxisUploads[axis_id] == 3) || ((FFTPlan->actualFFTSizePerAxis[axis_id][axis_id] <= 16384) && (FFTPlan->numAxisUploads[axis_id] == 2))) && (axis->specializationConstants.reorderFourStep == 3)) { // on AMD the original upload scheme works best for 3+ uploads
 		axis->specializationConstants.reorderFourStep = 1;
 		axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite = 0;
