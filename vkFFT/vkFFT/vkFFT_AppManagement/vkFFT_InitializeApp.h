@@ -1302,9 +1302,6 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 	}
 	if (inputLaunchConfiguration.forceCallbackVersionRealTransforms != 0)  app->configuration.forceCallbackVersionRealTransforms = inputLaunchConfiguration.forceCallbackVersionRealTransforms; 
 	
-	if ((inputLaunchConfiguration.disableMergeSequencesR2C != 0) || app->configuration.forceCallbackVersionRealTransforms) {
-		app->configuration.disableMergeSequencesR2C = 1;
-	}
 	app->configuration.normalize = 0;
 	if (inputLaunchConfiguration.normalize != 0)	app->configuration.normalize = inputLaunchConfiguration.normalize;
 	
@@ -1323,8 +1320,14 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 			app->configuration.performZeropadding[i] = inputLaunchConfiguration.performZeropadding[i];
 			app->configuration.fft_zeropad_left[i] = inputLaunchConfiguration.fft_zeropad_left[i];
 			app->configuration.fft_zeropad_right[i] = inputLaunchConfiguration.fft_zeropad_right[i];
+			app->configuration.forceCallbackVersionRealTransforms = 1;
 		}
 	}
+
+	if ((inputLaunchConfiguration.disableMergeSequencesR2C != 0) || app->configuration.forceCallbackVersionRealTransforms) {
+		app->configuration.disableMergeSequencesR2C = 1;
+	}
+	
 	if (inputLaunchConfiguration.registerBoost != 0)	app->configuration.registerBoost = inputLaunchConfiguration.registerBoost;
 	if (inputLaunchConfiguration.registerBoostNonPow2 != 0)	app->configuration.registerBoostNonPow2 = inputLaunchConfiguration.registerBoostNonPow2;
 	if (inputLaunchConfiguration.registerBoost4Step != 0)	app->configuration.registerBoost4Step = inputLaunchConfiguration.registerBoost4Step;
