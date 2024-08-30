@@ -177,8 +177,6 @@ VkFFTResult launchVkFFT(VkGPU* vkGPU, uint64_t sample_id, bool file_output, FILE
 	if (res2 != cudaSuccess) return VKFFT_ERROR_FAILED_TO_SET_DEVICE_ID;
 	res = cuDeviceGet(&vkGPU->device, (int)vkGPU->device_id);
 	if (res != CUDA_SUCCESS) return VKFFT_ERROR_FAILED_TO_GET_DEVICE;
-	res = cuCtxCreate(&vkGPU->context, 0, (int)vkGPU->device);
-	if (res != CUDA_SUCCESS) return VKFFT_ERROR_FAILED_TO_CREATE_CONTEXT;
 #elif(VKFFT_BACKEND==2)
 	hipError_t res = hipSuccess;
 	res = hipInit(0);
@@ -187,8 +185,6 @@ VkFFTResult launchVkFFT(VkGPU* vkGPU, uint64_t sample_id, bool file_output, FILE
 	if (res != hipSuccess) return VKFFT_ERROR_FAILED_TO_SET_DEVICE_ID;
 	res = hipDeviceGet(&vkGPU->device, (int)vkGPU->device_id);
 	if (res != hipSuccess) return VKFFT_ERROR_FAILED_TO_GET_DEVICE;
-	res = hipCtxCreate(&vkGPU->context, 0, (int)vkGPU->device);
-	if (res != hipSuccess) return VKFFT_ERROR_FAILED_TO_CREATE_CONTEXT;
 #elif(VKFFT_BACKEND==3)
 	cl_int res = CL_SUCCESS;
 	cl_uint numPlatforms;
@@ -518,9 +514,7 @@ VkFFTResult launchVkFFT(VkGPU* vkGPU, uint64_t sample_id, bool file_output, FILE
 	vkDestroyInstance(vkGPU->instance, NULL);
 	glslang_finalize_process();//destroy compiler after use
 #elif(VKFFT_BACKEND==1)
-	res = cuCtxDestroy(vkGPU->context);
 #elif(VKFFT_BACKEND==2)
-	res = hipCtxDestroy(vkGPU->context);
 #elif(VKFFT_BACKEND==3)
 	res = clReleaseCommandQueue(vkGPU->commandQueue);
 	if (res != CL_SUCCESS) return VKFFT_ERROR_FAILED_TO_RELEASE_COMMAND_QUEUE;
