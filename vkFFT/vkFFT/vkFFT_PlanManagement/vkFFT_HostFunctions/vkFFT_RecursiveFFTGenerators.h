@@ -261,8 +261,7 @@ static inline VkFFTResult VkFFTGeneratePhaseVectors(VkFFTApplication* app, VkFFT
 		if (kernelPreparationConfiguration.loadApplicationFromString) {
 			kernelPreparationConfiguration.loadApplicationString = (void*)((char*)app->configuration.loadApplicationString + app->currentApplicationStringPos);
 		}
-		kernelPreparationConfiguration.performBandwidthBoost = (app->configuration.performBandwidthBoost > 0) ? app->configuration.performBandwidthBoost : 1;
-		if (axis_id == 0) kernelPreparationConfiguration.performBandwidthBoost = 0;
+		kernelPreparationConfiguration.performBandwidthBoost = (app->configuration.performBandwidthBoost > 0) ? app->configuration.performBandwidthBoost : 2;
 		if (axis_id > 0) kernelPreparationConfiguration.considerAllAxesStrided = 1;
 		if (app->configuration.tempBuffer) {
 			kernelPreparationConfiguration.userTempBuffer = 1;
