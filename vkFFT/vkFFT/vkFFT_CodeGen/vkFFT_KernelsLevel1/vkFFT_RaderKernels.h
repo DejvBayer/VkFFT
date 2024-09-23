@@ -583,7 +583,7 @@ static inline void appendFFTRaderStage(VkFFTSpecializationConstantsLayout* sc, P
 					PfAppendLine(sc);
 								*/
 								PfMul(sc, &sc->regIDs[id.data.i], &sc->regIDs[id.data.i], &sc->w, &sc->temp);
-								
+
 							}
 							if (rader_stage != sc->currentRaderContainer->numStages - 1) {
 								if (!raderTranspose) {
@@ -682,53 +682,20 @@ sdata[sharedStride * gl_LocalInvocationID.y + inoutID + %" PRIu64 "] = temp%s%s;
 			case 2:
 				locStageSizeSum += locStageSize;
 				break;
-			case 3:
-				locStageSizeSum += locStageSize * 2;
-				break;
 			case 4:
 				locStageSizeSum += locStageSize * 2;
-				break;
-			case 5:
-				locStageSizeSum += locStageSize * 4;
-				break;
-			case 6:
-				locStageSizeSum += locStageSize * 5;
-				break;
-			case 7:
-				locStageSizeSum += locStageSize * 6;
 				break;
 			case 8:
 				locStageSizeSum += locStageSize * 3;
 				break;
-			case 9:
-				locStageSizeSum += locStageSize * 8;
-				break;
-			case 10:
-				locStageSizeSum += locStageSize * 9;
-				break;
-			case 11:
-				locStageSizeSum += locStageSize * 10;
-				break;
-			case 12:
-				locStageSizeSum += locStageSize * 11;
-				break;
-			case 13:
-				locStageSizeSum += locStageSize * 12;
-				break;
-			case 14:
-				locStageSizeSum += locStageSize * 13;
-				break;
-			case 15:
-				locStageSizeSum += locStageSize * 14;
-				break;
-			case 16:
+			/*case 16:
 				locStageSizeSum += locStageSize * 4;
 				break;
 			case 32:
 				locStageSizeSum += locStageSize * 5;
-				break;
+				break;*/
 			default:
-				locStageSizeSum += locStageSize * (locStageRadix);
+				locStageSizeSum += locStageSize * (locStageRadix-1);
 				break;
 			}
 		}
@@ -1132,53 +1099,20 @@ sdata[sharedStride * gl_LocalInvocationID.y + inoutID + %" PRIu64 "] = temp%s%s;
 			case 2:
 				locStageSizeSum += locStageSize;
 				break;
-			case 3:
-				locStageSizeSum += locStageSize * 2;
-				break;
 			case 4:
 				locStageSizeSum += locStageSize * 2;
-				break;
-			case 5:
-				locStageSizeSum += locStageSize * 4;
-				break;
-			case 6:
-				locStageSizeSum += locStageSize * 5;
-				break;
-			case 7:
-				locStageSizeSum += locStageSize * 6;
 				break;
 			case 8:
 				locStageSizeSum += locStageSize * 3;
 				break;
-			case 9:
-				locStageSizeSum += locStageSize * 8;
-				break;
-			case 10:
-				locStageSizeSum += locStageSize * 9;
-				break;
-			case 11:
-				locStageSizeSum += locStageSize * 10;
-				break;
-			case 12:
-				locStageSizeSum += locStageSize * 11;
-				break;
-			case 13:
-				locStageSizeSum += locStageSize * 12;
-				break;
-			case 14:
-				locStageSizeSum += locStageSize * 13;
-				break;
-			case 15:
-				locStageSizeSum += locStageSize * 14;
-				break;
-			case 16:
+			/*case 16:
 				locStageSizeSum += locStageSize * 4;
 				break;
 			case 32:
 				locStageSizeSum += locStageSize * 5;
-				break;
+				break;*/
 			default:
-				locStageSizeSum += locStageSize * (locStageRadix);
+				locStageSizeSum += locStageSize * (locStageRadix-1);
 				break;
 			}
 		}

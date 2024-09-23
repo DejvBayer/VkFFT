@@ -579,7 +579,7 @@ static inline VkFFTResult VkFFTPlanAxis(VkFFTApplication* app, VkFFTPlan* FFTPla
 		}
 		pfUINT zeropad_even_r2c_multiupload_scale = ((axis_id == 0) && (FFTPlan->bigSequenceEvenR2C)) ? 2 : 1;
 		if ((inverse)) {
-			if ((app->configuration.frequencyZeroPadding) && (axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1) && (reverseBluesteinMultiUpload != 1)) {
+			if ((app->configuration.frequencyZeroPadding) && (!((FFTPlan->bigSequenceEvenR2C) && (axis_id == 0))) && (axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1) && (reverseBluesteinMultiUpload != 1)) {
 				axis->specializationConstants.zeropad[0] = (int)app->configuration.performZeropadding[axis_id];
 				axis->specializationConstants.fft_zeropad_left_read[axis_id].type = 31;
 				axis->specializationConstants.fft_zeropad_left_read[axis_id].data.i = (pfINT)app->configuration.fft_zeropad_left[axis_id] / zeropad_even_r2c_multiupload_scale;
@@ -608,7 +608,7 @@ static inline VkFFTResult VkFFTPlanAxis(VkFFTApplication* app, VkFFTPlan* FFTPla
 			}
 			else
 				axis->specializationConstants.zeropad[0] = 0;
-			if (((app->configuration.frequencyZeroPadding) && (((axis_upload_id == 0) && (!axis->specializationConstants.useBluesteinFFT)) || ((axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1) && (axis->specializationConstants.useBluesteinFFT && ((reverseBluesteinMultiUpload == 1) || (FFTPlan->numAxisUploads[axis_id] == 1)))))) || (((!app->configuration.frequencyZeroPadding) && (app->configuration.FFTdim - 1 == axis_id) && (axis_upload_id == 0) && (FFTPlan->numAxisUploads[axis_id] == 1) && (app->configuration.performConvolution)))) {
+			if (((app->configuration.frequencyZeroPadding) && (!((FFTPlan->bigSequenceEvenR2C) && (axis_id == 0))) && (((axis_upload_id == 0) && (!axis->specializationConstants.useBluesteinFFT)) || ((axis_upload_id == FFTPlan->numAxisUploads[axis_id] - 1) && (axis->specializationConstants.useBluesteinFFT && ((reverseBluesteinMultiUpload == 1) || (FFTPlan->numAxisUploads[axis_id] == 1)))))) || (((!app->configuration.frequencyZeroPadding) && (app->configuration.FFTdim - 1 == axis_id) && (axis_upload_id == 0) && (FFTPlan->numAxisUploads[axis_id] == 1) && (app->configuration.performConvolution)))) {
 				axis->specializationConstants.zeropad[1] = (int)app->configuration.performZeropadding[axis_id];
 				axis->specializationConstants.fft_zeropad_left_write[axis_id].type = 31;
 				axis->specializationConstants.fft_zeropad_left_write[axis_id].data.i = (pfINT)app->configuration.fft_zeropad_left[axis_id] / zeropad_even_r2c_multiupload_scale;

@@ -2340,7 +2340,7 @@ static inline void PfMul(VkFFTSpecializationConstantsLayout* sc, PfContainer* ou
 #endif
 		if ((in_2->type % 10) == 3){
 			if ((in_1->type % 10) == 3){
-				if ((in_1->type < 100) || (in_2->type < 100) || ((strcmp(out->name, in_1->name)) && (strcmp(out->name, in_2->name)))) {
+				if (((in_1->type < 100) || (strcmp(out->name, in_1->name))) && ((in_2->type < 100) || strcmp(out->name, in_2->name))) {
 					PfMul(sc, &out->data.c[0], &in_1->data.c[1], &in_2->data.c[1], 0);
 					PfMovNeg(sc, &out->data.c[0], &out->data.c[0]);
 					PfFMA(sc, &out->data.c[0], &in_1->data.c[0], &in_2->data.c[0], &out->data.c[0]);
@@ -4063,7 +4063,7 @@ static inline void PfPrintReg(VkFFTSpecializationConstantsLayout* sc, PfContaine
 
 static inline void PfPermute(VkFFTSpecializationConstantsLayout* sc, pfUINT* permute, pfUINT num_elem, pfUINT type, PfContainer* regIDs, PfContainer* temp) {
 	if (sc->res != VKFFT_SUCCESS) return;
-	PfContainer tempID[33] = VKFFT_ZERO_INIT;
+	PfContainer tempID[68] = VKFFT_ZERO_INIT;
 	for (int i = 0; i < num_elem; i++) {
 		tempID[i].type = 100 + sc->vecTypeCode;
 		PfAllocateContainerFlexible(sc, &tempID[i], 50);

@@ -426,25 +426,85 @@ static inline VkFFTResult VkFFTCheckUpdateBufferSet(VkFFTApplication* app, VkFFT
 	pfUINT performOffsetUpdate = planStage;
 	if (!planStage) {
 		if (launchParams != 0) {
-			if ((launchParams->buffer != 0) && (app->configuration.buffer != launchParams->buffer)) {
-				app->configuration.buffer = launchParams->buffer;
-				performBufferSetUpdate = 1;
+			if (launchParams->buffer != 0) {
+				for (pfUINT i = 0; i < app->configuration.bufferNum; i++) {
+					if (app->configuration.buffer[i] != launchParams->buffer[i]) {
+#if(VKFFT_BACKEND==0)
+						memcpy((void*)&app->configuration.buffer[i], (const void*)&launchParams->buffer[i], sizeof(const VkBuffer));
+#elif((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2) || (VKFFT_BACKEND==4))
+						memcpy((void*)&app->configuration.buffer[i], (const void*)&launchParams->buffer[i], sizeof(void* const));
+#elif(VKFFT_BACKEND==3)
+						memcpy((void*)&app->configuration.buffer[i], (const void*)&launchParams->buffer[i], sizeof(const cl_mem));
+#elif(VKFFT_BACKEND==5)
+						memcpy((void*)&app->configuration.buffer[i], (const void*)&launchParams->buffer[i], sizeof(MTL::Buffer* const));
+#endif
+						performBufferSetUpdate = 1;
+					}
+				}
 			}
-			if ((launchParams->inputBuffer != 0) && (app->configuration.inputBuffer != launchParams->inputBuffer)) {
-				app->configuration.inputBuffer = launchParams->inputBuffer;
-				performBufferSetUpdate = 1;
+			if (launchParams->inputBuffer != 0) {
+				for (pfUINT i = 0; i < app->configuration.inputBufferNum; i++) {
+					if (app->configuration.inputBuffer[i] != launchParams->inputBuffer[i]) {
+#if(VKFFT_BACKEND==0)
+						memcpy((void*)&app->configuration.inputBuffer[i], (const void*)&launchParams->inputBuffer[i], sizeof(const VkBuffer));
+#elif((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2) || (VKFFT_BACKEND==4))
+						memcpy((void*)&app->configuration.inputBuffer[i], (const void*)&launchParams->inputBuffer[i], sizeof(void* const));
+#elif(VKFFT_BACKEND==3)
+						memcpy((void*)&app->configuration.inputBuffer[i], (const void*)&launchParams->inputBuffer[i], sizeof(const cl_mem));
+#elif(VKFFT_BACKEND==5)
+						memcpy((void*)&app->configuration.inputBuffer[i], (const void*)&launchParams->inputBuffer[i], sizeof(MTL::Buffer* const));
+#endif
+						performBufferSetUpdate = 1;
+					}
+				}
 			}
-			if ((launchParams->outputBuffer != 0) && (app->configuration.outputBuffer != launchParams->outputBuffer)) {
-				app->configuration.outputBuffer = launchParams->outputBuffer;
-				performBufferSetUpdate = 1;
+			if (launchParams->outputBuffer != 0) {
+				for (pfUINT i = 0; i < app->configuration.outputBufferNum; i++) {
+					if (app->configuration.outputBuffer[i] != launchParams->outputBuffer[i]) {
+#if(VKFFT_BACKEND==0)
+						memcpy((void*)&app->configuration.outputBuffer[i], (const void*)&launchParams->outputBuffer[i], sizeof(const VkBuffer));
+#elif((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2) || (VKFFT_BACKEND==4))
+						memcpy((void*)&app->configuration.outputBuffer[i], (const void*)&launchParams->outputBuffer[i], sizeof(void* const));
+#elif(VKFFT_BACKEND==3)
+						memcpy((void*)&app->configuration.outputBuffer[i], (const void*)&launchParams->outputBuffer[i], sizeof(const cl_mem));
+#elif(VKFFT_BACKEND==5)
+						memcpy((void*)&app->configuration.outputBuffer[i], (const void*)&launchParams->outputBuffer[i], sizeof(MTL::Buffer* const));
+#endif
+						performBufferSetUpdate = 1;
+					}
+				}
 			}
-			if ((launchParams->tempBuffer != 0) && (app->configuration.tempBuffer != launchParams->tempBuffer)) {
-				app->configuration.tempBuffer = launchParams->tempBuffer;
-				performBufferSetUpdate = 1;
+			if (launchParams->tempBuffer != 0) {
+				for (pfUINT i = 0; i < app->configuration.tempBufferNum; i++) {
+					if (app->configuration.tempBuffer[i] != launchParams->tempBuffer[i]) {
+#if(VKFFT_BACKEND==0)
+						memcpy((void*)&app->configuration.tempBuffer[i], (const void*)&launchParams->tempBuffer[i], sizeof(VkBuffer));
+#elif((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2) || (VKFFT_BACKEND==4))
+						memcpy((void*)&app->configuration.tempBuffer[i], (const void*)&launchParams->tempBuffer[i], sizeof(void*));
+#elif(VKFFT_BACKEND==3)
+						memcpy((void*)&app->configuration.tempBuffer[i], (const void*)&launchParams->tempBuffer[i], sizeof(cl_mem));
+#elif(VKFFT_BACKEND==5)
+						memcpy((void*)&app->configuration.tempBuffer[i], (const void*)&launchParams->tempBuffer[i], sizeof(MTL::Buffer*));
+#endif
+						performBufferSetUpdate = 1;
+					}
+				}
 			}
-			if ((launchParams->kernel != 0) && (app->configuration.kernel != launchParams->kernel)) {
-				app->configuration.kernel = launchParams->kernel;
-				performBufferSetUpdate = 1;
+			if (launchParams->kernel != 0) {
+				for (pfUINT i = 0; i < app->configuration.kernelNum; i++) {
+					if (app->configuration.kernel[i] != launchParams->kernel[i]) {
+#if(VKFFT_BACKEND==0)
+						memcpy((void*)&app->configuration.kernel[i], (const void*)&launchParams->kernel[i], sizeof(const VkBuffer));
+#elif((VKFFT_BACKEND==1) || (VKFFT_BACKEND==2) || (VKFFT_BACKEND==4))
+						memcpy((void*)&app->configuration.kernel[i], (const void*)&launchParams->kernel[i], sizeof(void* const));
+#elif(VKFFT_BACKEND==3)
+						memcpy((void*)&app->configuration.kernel[i], (const void*)&launchParams->kernel[i], sizeof(const cl_mem));
+#elif(VKFFT_BACKEND==5)
+						memcpy((void*)&app->configuration.kernel[i], (const void*)&launchParams->kernel[i], sizeof(MTL::Buffer* const));
+#endif
+						performBufferSetUpdate = 1;
+					}
+				}
 			}
 			if (app->configuration.inputBuffer == 0) app->configuration.inputBuffer = app->configuration.buffer;
 			if (app->configuration.outputBuffer == 0) app->configuration.outputBuffer = app->configuration.buffer;
@@ -493,20 +553,38 @@ static inline VkFFTResult VkFFTCheckUpdateBufferSet(VkFFTApplication* app, VkFFT
 		}
 	}
 	if (planStage) {
-		if (app->configuration.buffer == 0) {
-			performBufferSetUpdate = 0;
+		for (pfUINT i = 0; i < app->configuration.bufferNum; i++) {
+			if (app->configuration.buffer[i] == 0) {
+				performBufferSetUpdate = 0;
+			}
 		}
-		if ((app->configuration.isInputFormatted) && (app->configuration.inputBuffer == 0)) {
-			performBufferSetUpdate = 0;
+		if (app->configuration.isInputFormatted) {
+			for (pfUINT i = 0; i < app->configuration.inputBufferNum; i++) {
+				if (app->configuration.inputBuffer[i] == 0) {
+					performBufferSetUpdate = 0;
+				}
+			}
 		}
-		if ((app->configuration.isOutputFormatted) && (app->configuration.outputBuffer == 0)) {
-			performBufferSetUpdate = 0;
+		if (app->configuration.isOutputFormatted) {
+			for (pfUINT i = 0; i < app->configuration.outputBufferNum; i++) {
+				if (app->configuration.outputBuffer[i] == 0) {
+					performBufferSetUpdate = 0;
+				}
+			}
 		}
-		if (((app->configuration.userTempBuffer) && (app->configuration.tempBuffer == 0)) || (app->configuration.allocateTempBuffer)){
-			performBufferSetUpdate = 0;
+		if ((app->configuration.userTempBuffer) || (app->configuration.allocateTempBuffer)){
+			for (pfUINT i = 0; i < app->configuration.tempBufferNum; i++) {
+				if (app->configuration.tempBuffer[i] == 0) {
+					performBufferSetUpdate = 0;
+				}
+			}
 		}
-		if ((app->configuration.performConvolution) && (app->configuration.kernel == 0)) {
-			performBufferSetUpdate = 0;
+		if (app->configuration.performConvolution) {
+			for (pfUINT i = 0; i < app->configuration.kernelNum; i++) {
+				if (app->configuration.kernel[i] == 0) {
+					performBufferSetUpdate = 0;
+				}
+			}
 		}
 #if(VKFFT_BACKEND==0)
 		if (app->configuration.usePushDescriptors) {
@@ -515,20 +593,38 @@ static inline VkFFTResult VkFFTCheckUpdateBufferSet(VkFFTApplication* app, VkFFT
 #endif
 	}
 	else {
-		if (app->configuration.buffer == 0) {
-			return VKFFT_ERROR_EMPTY_buffer;
+		for (pfUINT i = 0; i < app->configuration.bufferNum; i++) {
+			if (app->configuration.buffer[i] == 0) {
+				return VKFFT_ERROR_EMPTY_buffer;
+			}
 		}
-		if ((app->configuration.isInputFormatted) && (app->configuration.inputBuffer == 0)) {
-			return VKFFT_ERROR_EMPTY_inputBuffer;
+		if (app->configuration.isInputFormatted) {
+			for (pfUINT i = 0; i < app->configuration.inputBufferNum; i++) {
+				if (app->configuration.inputBuffer[i] == 0) {
+					return VKFFT_ERROR_EMPTY_inputBuffer;
+				}
+			}
 		}
-		if ((app->configuration.isOutputFormatted) && (app->configuration.outputBuffer == 0)) {
-			return VKFFT_ERROR_EMPTY_outputBuffer;
+		if (app->configuration.isOutputFormatted) {
+			for (pfUINT i = 0; i < app->configuration.outputBufferNum; i++) {
+				if (app->configuration.outputBuffer[i] == 0) {
+					return VKFFT_ERROR_EMPTY_outputBuffer;
+				}
+			}
 		}
-		if ((app->configuration.userTempBuffer) && (app->configuration.tempBuffer == 0)) {
-			return VKFFT_ERROR_EMPTY_tempBuffer;
+		if ((app->configuration.userTempBuffer) || (app->configuration.allocateTempBuffer)){
+			for (pfUINT i = 0; i < app->configuration.tempBufferNum; i++) {
+				if (app->configuration.tempBuffer[i] == 0) {
+					return VKFFT_ERROR_EMPTY_tempBuffer;
+				}
+			}
 		}
-		if ((app->configuration.performConvolution) && (app->configuration.kernel == 0)) {
-			return VKFFT_ERROR_EMPTY_kernel;
+		if (app->configuration.performConvolution) {
+			for (pfUINT i = 0; i < app->configuration.kernelNum; i++) {
+				if (app->configuration.kernel[i] == 0) {
+					return VKFFT_ERROR_EMPTY_kernel;
+				}
+			}
 		}
 	}
 	if (performBufferSetUpdate) {

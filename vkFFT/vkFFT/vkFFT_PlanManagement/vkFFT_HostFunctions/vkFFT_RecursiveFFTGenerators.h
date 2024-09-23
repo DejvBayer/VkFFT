@@ -251,10 +251,10 @@ static inline VkFFTResult VkFFTGeneratePhaseVectors(VkFFTApplication* app, VkFFT
 		kernelPreparationConfiguration.useLUT_4step = 1;
 		kernelPreparationConfiguration.registerBoost = 1;
 		kernelPreparationConfiguration.disableReorderFourStep = 1;
-		kernelPreparationConfiguration.fixMinRaderPrimeFFT = 17;
-		kernelPreparationConfiguration.fixMinRaderPrimeMult = 17;
-		kernelPreparationConfiguration.fixMaxRaderPrimeFFT = 17;
-		kernelPreparationConfiguration.fixMaxRaderPrimeMult = 17;
+		kernelPreparationConfiguration.fixMinRaderPrimeFFT = app->configuration.fixMinRaderPrimeMult;
+		kernelPreparationConfiguration.fixMinRaderPrimeMult = app->configuration.fixMinRaderPrimeMult;
+		kernelPreparationConfiguration.fixMaxRaderPrimeFFT = app->configuration.fixMinRaderPrimeMult;
+		kernelPreparationConfiguration.fixMaxRaderPrimeMult = app->configuration.fixMinRaderPrimeMult;
 		kernelPreparationConfiguration.saveApplicationToString = app->configuration.saveApplicationToString;
 		kernelPreparationConfiguration.loadApplicationFromString = app->configuration.loadApplicationFromString;
 		kernelPreparationConfiguration.sharedMemorySize = app->configuration.sharedMemorySize;
@@ -263,7 +263,7 @@ static inline VkFFTResult VkFFTGeneratePhaseVectors(VkFFTApplication* app, VkFFT
 		}
 		kernelPreparationConfiguration.performBandwidthBoost = (app->configuration.performBandwidthBoost > 0) ? app->configuration.performBandwidthBoost : 2;
 		if (axis_id > 0) kernelPreparationConfiguration.considerAllAxesStrided = 1;
-		if (app->configuration.tempBuffer) {
+		if (app->configuration.userTempBuffer) {
 			kernelPreparationConfiguration.userTempBuffer = 1;
 			kernelPreparationConfiguration.tempBuffer = app->configuration.tempBuffer;
 			kernelPreparationConfiguration.tempBufferSize = app->configuration.tempBufferSize;
@@ -276,7 +276,7 @@ static inline VkFFTResult VkFFTGeneratePhaseVectors(VkFFTApplication* app, VkFFT
 		kernelPreparationConfiguration.commandPool = app->configuration.commandPool;
 		kernelPreparationConfiguration.physicalDevice = app->configuration.physicalDevice;
 		kernelPreparationConfiguration.isCompilerInitialized = 1;//compiler can be initialized before VkFFT plan creation. if not, VkFFT will create and destroy one after initialization
-		if (app->configuration.tempBuffer) {
+		if (app->configuration.userTempBuffer) {
 			kernelPreparationConfiguration.tempBufferDeviceMemory = app->configuration.tempBufferDeviceMemory;
 		}
 		if (app->configuration.stagingBuffer != 0)	kernelPreparationConfiguration.stagingBuffer = app->configuration.stagingBuffer;
@@ -1113,10 +1113,10 @@ static inline VkFFTResult VkFFTGenerateRaderFFTKernel(VkFFTApplication* app, VkF
 				kernelPreparationConfiguration.doublePrecision = (app->configuration.doublePrecision | app->configuration.doublePrecisionFloatMemory);
 				kernelPreparationConfiguration.quadDoubleDoublePrecision = (app->configuration.quadDoubleDoublePrecision | app->configuration.quadDoubleDoublePrecisionDoubleMemory);
 				kernelPreparationConfiguration.useLUT = 1;
-				kernelPreparationConfiguration.fixMinRaderPrimeFFT = 17;
-				kernelPreparationConfiguration.fixMinRaderPrimeMult = 17;
-				kernelPreparationConfiguration.fixMaxRaderPrimeFFT = 17;
-				kernelPreparationConfiguration.fixMaxRaderPrimeMult = 17;
+				kernelPreparationConfiguration.fixMinRaderPrimeFFT = app->configuration.fixMaxRaderRadixFFT;
+				kernelPreparationConfiguration.fixMinRaderPrimeMult = app->configuration.fixMaxRaderRadixFFT;
+				kernelPreparationConfiguration.fixMaxRaderPrimeFFT = app->configuration.fixMaxRaderRadixFFT;
+				kernelPreparationConfiguration.fixMaxRaderPrimeMult = app->configuration.fixMaxRaderRadixFFT;
 
 				kernelPreparationConfiguration.device = app->configuration.device;
 #if(VKFFT_BACKEND==0)

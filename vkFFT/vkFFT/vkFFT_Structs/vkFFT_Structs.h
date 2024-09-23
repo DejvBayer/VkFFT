@@ -275,7 +275,8 @@ typedef struct {
 
 	pfUINT fixMinRaderPrimeFFT;//start FFT convolution version of Rader for radix primes from this number. Better than direct multiplication version for almost all primes (except small ones, like 17-23 on some GPUs). Must be bigger or equal to fixMinRaderPrimeMult. Deafult 29 on AMD and 17 on other GPUs. 
 	pfUINT fixMaxRaderPrimeFFT;//switch to Bluestein's algorithm for radix primes from this number. Switch may happen earlier if prime can't fit in shared memory. Default is 16384, which is bigger than most current GPU's shared memory.
-
+	pfUINT fixMaxRaderRadixFFT;//Only perform Rader's algorithm if P-1 is decomposable as a multiplication of primes up to X (not including X).
+	
 	//optional zero padding control parameters: (default 0 if not stated otherwise)
 	pfUINT performZeropadding[VKFFT_MAX_FFT_DIMENSIONS]; // don't read some data/perform computations if some input sequences are zeropadded for each axis (0 - off, 1 - on)
 	pfUINT fft_zeropad_left[VKFFT_MAX_FFT_DIMENSIONS];//specify start boundary of zero block in the system for each axis
@@ -723,8 +724,8 @@ struct VkFFTRaderContainer {
 	//FFT parameters
 	int registers_per_thread;
 	int min_registers_per_thread;
-	int loc_multipliers[33];
-	int registers_per_thread_per_radix[33];
+	int loc_multipliers[68];
+	int registers_per_thread_per_radix[68];
 	int stageRadix[20];
 	int numStages;
 	int numSubPrimes;
@@ -762,7 +763,7 @@ typedef struct {
 	int axis_upload_id;
 	int numAxisUploads;
 	int registers_per_thread;
-	int registers_per_thread_per_radix[33];
+	int registers_per_thread_per_radix[68];
 	int min_registers_per_thread;
 	int maxNonPow2Radix;
 	int usedLocRegs;
@@ -1011,8 +1012,8 @@ typedef struct {
 	PfContainer iw;
 	PfContainer angle;
 	PfContainer mult;
-	PfContainer x0[33];
-	PfContainer locID[33];
+	PfContainer x0[68];
+	PfContainer locID[68];
 	char* code0;
 	char* tempStr;
 	pfINT tempLen;
@@ -1056,7 +1057,7 @@ typedef struct {
 	//PfContainer cosDef;
 	//PfContainer sinDef;
 
-	PfContainer oldLocale;
+	char* oldLocale;
 
 	pfINT id;
 } VkFFTSpecializationConstantsLayout;

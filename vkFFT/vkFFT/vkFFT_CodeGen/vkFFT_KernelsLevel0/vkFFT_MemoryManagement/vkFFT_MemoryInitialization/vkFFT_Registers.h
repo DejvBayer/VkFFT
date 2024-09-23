@@ -209,7 +209,7 @@ static inline void appendRegisterInitialization(VkFFTSpecializationConstantsLayo
 	//
 	int useRadix8plus = 0;
 	for (int i = 0; i < sc->numStages; i++)
-		if ((sc->stageRadix[i] == 8) || (sc->stageRadix[i] == 16) || (sc->stageRadix[i] == 32) || (sc->useRaderFFT)) useRadix8plus = 1;
+		if (((sc->stageRadix[i]%8) == 0) || (sc->stageRadix[i] == 17) || (sc->stageRadix[i] == 41) || (sc->useRaderFFT)) useRadix8plus = 1;
 	if (useRadix8plus == 1) {
 		if (maxNonPow2Radix > 1) {
 			sc->iw.type = 100 + sc->vecTypeCode;
@@ -572,7 +572,7 @@ static inline void freeRegisterInitialization(VkFFTSpecializationConstantsLayout
 	//
 	int useRadix8plus = 0;
 	for (int i = 0; i < sc->numStages; i++)
-		if ((sc->stageRadix[i] == 8) || (sc->stageRadix[i] == 16) || (sc->stageRadix[i] == 32) || (sc->useRaderFFT)) useRadix8plus = 1;
+		if (((sc->stageRadix[i]%8) == 0) || (sc->stageRadix[i] == 17) || (sc->stageRadix[i] == 41) || (sc->useRaderFFT)) useRadix8plus = 1;
 	if (useRadix8plus == 1) {
 		if (maxNonPow2Radix > 1) {
 			PfDeallocateContainer(sc, &sc->iw);

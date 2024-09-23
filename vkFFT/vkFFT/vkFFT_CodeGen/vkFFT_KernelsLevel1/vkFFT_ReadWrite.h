@@ -475,7 +475,7 @@ static inline void appendReadWriteDataVkFFT_nonstrided(VkFFTSpecializationConsta
 
 	PfContainer fftDim = VKFFT_ZERO_INIT;
 	fftDim.type = 31;
-	if (((sc->zeropad[readWrite]) || ((sc->zeropadBluestein[readWrite])) || (((type / 10) == 111)&&(sc->performDST == 1))) && (!readWrite)) {
+	if (((sc->zeropad[readWrite]) || ((sc->zeropadBluestein[readWrite])) || (sc->performDST == 1)) && (!readWrite)) {
 		if (sc->readToRegisters == 0) {
 			appendSetSMToZero(sc);
 			appendBarrierVkFFT(sc);
