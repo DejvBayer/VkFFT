@@ -155,7 +155,7 @@ static inline void appendSharedMemoryVkFFT(VkFFTSpecializationConstantsLayout* s
 		}
 		break;
 				}
-	case 1: case 2: //grouped_c2c + single_c2c_strided
+	case 1: case 2: //grouped_c2c + single_c2c_strided + axisSwapped
 	{
 		pfUINT shift = (sc->fftDim.data.i < (sc->numSharedBanks / 2)) ? (sc->numSharedBanks / 2) / sc->fftDim.data.i : 1;
 		sc->sharedStrideReadWriteConflict.type = 31;
@@ -168,7 +168,7 @@ static inline void appendSharedMemoryVkFFT(VkFFTSpecializationConstantsLayout* s
 			sc->sharedStride4StepLastAxisConflict.data.i = sc->localSize[0].data.i;
 
 		sc->maxSharedStride.type = 31;
-		sc->maxSharedStride.data.i = maxSequenceSharedMemory.data.i / sc->fftDim.data.i;// ((maxSequenceSharedMemory.data.i < sc->sharedStrideReadWriteConflict.data.i* (sc->fftDim.data.i / sc->registerBoost + (pfINT)additionalR2Cshared))) ? sc->localSize[0].data.i : sc->sharedStrideReadWriteConflict.data.i;
+		sc->maxSharedStride.data.i = maxSequenceSharedMemory.data.i / (sc->fftDim.data.i / sc->registerBoost + additionalR2Cshared);// ((maxSequenceSharedMemory.data.i < sc->sharedStrideReadWriteConflict.data.i* (sc->fftDim.data.i / sc->registerBoost + (pfINT)additionalR2Cshared))) ? sc->localSize[0].data.i : sc->sharedStrideReadWriteConflict.data.i;
 		sc->sharedStrideReadWriteConflict.data.i = (sc->maxSharedStride.data.i == sc->localSize[0].data.i) ? sc->localSize[0].data.i : sc->sharedStrideReadWriteConflict.data.i;
 		sc->sharedStride4StepLastAxisConflict.data.i = (sc->maxSharedStride.data.i == sc->localSize[0].data.i) ? sc->localSize[0].data.i : sc->sharedStride4StepLastAxisConflict.data.i;
 

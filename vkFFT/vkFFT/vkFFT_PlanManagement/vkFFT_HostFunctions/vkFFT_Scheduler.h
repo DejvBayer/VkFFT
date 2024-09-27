@@ -391,7 +391,7 @@ static inline VkFFTResult VkFFTConstructRaderTree(VkFFTApplication* app, VkFFTAx
 	}
 	return res;
 }
-static inline VkFFTResult VkFFTOptimizeRaderFFTRegisters(VkFFTRaderContainer* raderContainer, int numRaderPrimes, int fftDim, int* min_registers_per_thread, int* registers_per_thread, int* registers_per_thread_per_radix) {
+static inline VkFFTResult VkFFTOptimizeRaderFFTRegisters(VkFFTApplication* app, VkFFTRaderContainer* raderContainer, int numRaderPrimes, int fftDim, int* min_registers_per_thread, int* registers_per_thread, int* registers_per_thread_per_radix) {
 	VkFFTResult res = VKFFT_SUCCESS;
 	for (pfINT i = 0; i < (pfINT)numRaderPrimes; i++) {
 		if (raderContainer[i].type == 0) {
@@ -413,7 +413,12 @@ static inline VkFFTResult VkFFTOptimizeRaderFFTRegisters(VkFFTRaderContainer* ra
 					if (raderContainer[i].registers_per_thread_per_radix[j] > raderContainer[i].registers_per_thread) raderContainer[i].registers_per_thread = raderContainer[i].registers_per_thread_per_radix[j];
 				}
 			}
-
+			for (int j = 0; j < 68; j++) {
+				if (raderContainer[i].registers_per_thread_per_radix[j] > 0){
+					while (raderContainer[i].containerFFTNum * (int)pfceil(raderContainer[i].containerFFTDim / (double)raderContainer[i].registers_per_thread_per_radix[j]) > app->configuration.maxThreadsNum)
+						raderContainer[i].registers_per_thread_per_radix[j] += j;
+				}
+			}
 			/*if (raderContainer[i].min_registers_per_thread < min_registers_per_thread[0]) {
 				for (int j = 0; j < 68; j++) {
 					if (raderContainer[i].registers_per_thread_per_radix[j] > 0) {
@@ -424,7 +429,7 @@ static inline VkFFTResult VkFFTOptimizeRaderFFTRegisters(VkFFTRaderContainer* ra
 					}
 				}
 			}*/
-			if (numRaderPrimes>1){
+			/*if (app->configuration.maxThreadsNum < fftDim / min_registers_per_thread[0]) {
 				for (pfINT j = 2; j < 68; j++) {
 					if (raderContainer[i].registers_per_thread_per_radix[j] != 0) {
 						double scaling = (raderContainer[i].containerFFTDim > raderContainer[i].registers_per_thread_per_radix[j]) ? pfceil(raderContainer[i].containerFFTDim / (double)raderContainer[i].registers_per_thread_per_radix[j]) : 1.0 / floor(raderContainer[i].registers_per_thread_per_radix[j] / (double)raderContainer[i].containerFFTDim);
@@ -435,7 +440,7 @@ static inline VkFFTResult VkFFTOptimizeRaderFFTRegisters(VkFFTRaderContainer* ra
 						if (raderContainer[i].registers_per_thread_per_radix[j] > raderContainer[i].registers_per_thread) raderContainer[i].registers_per_thread = raderContainer[i].registers_per_thread_per_radix[j];
 					}
 				}
-			}
+			}*/
 			if (raderContainer[i].registers_per_thread > registers_per_thread[0]) registers_per_thread[0] = raderContainer[i].registers_per_thread;
 		}
 	}
@@ -466,7 +471,7 @@ static inline VkFFTResult VkFFTOptimizeRaderFFTRegisters(VkFFTRaderContainer* ra
 	//subprimes optimization
 	for (pfINT i = 0; i < (pfINT)numRaderPrimes; i++) {
 		if (raderContainer[i].numSubPrimes) {
-			res = VkFFTOptimizeRaderFFTRegisters(raderContainer[i].container, raderContainer[i].numSubPrimes, fftDim, min_registers_per_thread, registers_per_thread, registers_per_thread_per_radix);
+			res = VkFFTOptimizeRaderFFTRegisters(app, raderContainer[i].container, raderContainer[i].numSubPrimes, fftDim, min_registers_per_thread, registers_per_thread, registers_per_thread_per_radix);
 			if (res != VKFFT_SUCCESS) return res;
 		}
 	}
@@ -1457,7 +1462,7 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 				min_registers_per_thread = 2;
 				registers_per_thread = 2;
 			}
-			res = VkFFTOptimizeRaderFFTRegisters(axes[k].specializationConstants.raderContainer, axes[k].specializationConstants.numRaderPrimes, (int)locAxisSplit[k], &min_registers_per_thread, &registers_per_thread, registers_per_thread_per_radix);
+			res = VkFFTOptimizeRaderFFTRegisters(app, axes[k].specializationConstants.raderContainer, axes[k].specializationConstants.numRaderPrimes, (int)locAxisSplit[k], &min_registers_per_thread, &registers_per_thread, registers_per_thread_per_radix);
 			if (res != VKFFT_SUCCESS) return res;
 		}
 		if ((registerBoost == 4) && (registers_per_thread % 4 != 0)) {
@@ -1608,7 +1613,7 @@ static inline VkFFTResult VkFFTScheduler(VkFFTApplication* app, VkFFTPlan* FFTPl
 		}
 		//second optimizer pass
 		if (axes[k].specializationConstants.numRaderPrimes) {
-			res = VkFFTOptimizeRaderFFTRegisters(axes[k].specializationConstants.raderContainer, axes[k].specializationConstants.numRaderPrimes, (int)locAxisSplit[k], &min_registers_per_thread, &registers_per_thread, registers_per_thread_per_radix);
+			res = VkFFTOptimizeRaderFFTRegisters(app, axes[k].specializationConstants.raderContainer, axes[k].specializationConstants.numRaderPrimes, (int)locAxisSplit[k], &min_registers_per_thread, &registers_per_thread, registers_per_thread_per_radix);
 			if (res != VKFFT_SUCCESS) return res;
 		}
 		for (int i = 2; i < 68; i++) {

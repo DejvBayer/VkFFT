@@ -46,18 +46,9 @@ static inline void appendPushConstants(VkFFTSpecializationConstantsLayout* sc) {
 	sc->tempLen = sprintf(sc->tempStr, "layout(push_constant) uniform PushConsts\n{\n");
 	PfAppendLine(sc);
 	
-#elif(VKFFT_BACKEND==1)
+#else
 	sc->tempLen = sprintf(sc->tempStr, "	typedef struct {\n");
 	PfAppendLine(sc);
-	
-#elif(VKFFT_BACKEND==2)
-	sc->tempLen = sprintf(sc->tempStr, "	typedef struct {\n");
-	PfAppendLine(sc);
-	
-#elif(VKFFT_BACKEND==3)
-	sc->tempLen = sprintf(sc->tempStr, "	typedef struct {\n");
-	PfAppendLine(sc);
-	
 #endif
 	char tempCopyStr[60];
 	if (sc->performWorkGroupShift[0]) {
@@ -109,22 +100,9 @@ static inline void appendPushConstants(VkFFTSpecializationConstantsLayout* sc) {
 	sc->tempLen = sprintf(sc->tempStr, "} consts;\n\n");
 	PfAppendLine(sc);
 	
-#elif(VKFFT_BACKEND==1)
+#else
 	sc->tempLen = sprintf(sc->tempStr, "	}PushConsts;\n");
 	PfAppendLine(sc);
-	//sc->tempLen = sprintf(sc->tempStr, "	__constant__ PushConsts consts;\n");
-	//PfAppendLine(sc);
-#elif(VKFFT_BACKEND==2)
-	sc->tempLen = sprintf(sc->tempStr, "	}PushConsts;\n");
-	PfAppendLine(sc);
-	
-	//sc->tempLen = sprintf(sc->tempStr, "	__constant__ PushConsts consts;\n");
-	//PfAppendLine(sc);
-	
-#elif(VKFFT_BACKEND==3)
-	sc->tempLen = sprintf(sc->tempStr, "	}PushConsts;\n");
-	PfAppendLine(sc);
-	
 #endif
 	return;
 }

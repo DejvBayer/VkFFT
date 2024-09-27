@@ -1069,27 +1069,13 @@ static inline VkFFTResult setConfigurationVkFFT(VkFFTApplication* app, VkFFTConf
 		deleteVkFFT(app);
 		return VKFFT_ERROR_INVALID_DEVICE;
 	}
-	app->configuration.device = (MTL::Device*)calloc(1, sizeof(MTL::Device));
-	if (!app->configuration.device) {
-		deleteVkFFT(app);
-		return VKFFT_ERROR_MALLOC_FAILED;
-	}
-	else {
-		app->configuration.device[0] = inputLaunchConfiguration.device[0];
-	}
+    app->configuration.device = inputLaunchConfiguration.device;
 
 	if (inputLaunchConfiguration.queue == 0) {
 		deleteVkFFT(app);
 		return VKFFT_ERROR_INVALID_QUEUE;
 	}
-	app->configuration.queue = (MTL::CommandQueue*)calloc(1, sizeof(MTL::CommandQueue));
-	if (!app->configuration.queue) {
-		deleteVkFFT(app);
-		return VKFFT_ERROR_MALLOC_FAILED;
-	}
-	else {
-		app->configuration.queue[0] = inputLaunchConfiguration.queue[0];
-	}
+    app->configuration.queue = inputLaunchConfiguration.queue;
 
 	const char dummy_kernel[50] = "kernel void VkFFT_dummy (){}";
 	const char function_name[20] = "VkFFT_dummy";

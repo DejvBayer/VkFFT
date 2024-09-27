@@ -436,14 +436,6 @@ static inline void deleteVkFFT(VkFFTApplication* app) {
 		app->configuration.commandQueue = 0;
 	}
 #elif(VKFFT_BACKEND==5)
-	if (app->configuration.device) {
-		free(app->configuration.device);
-		app->configuration.device = 0;
-	}
-	if (app->configuration.queue) {
-		free(app->configuration.queue);
-		app->configuration.queue = 0;
-	}
 #endif
 	memset(app, 0, sizeof(VkFFTApplication));
 }
