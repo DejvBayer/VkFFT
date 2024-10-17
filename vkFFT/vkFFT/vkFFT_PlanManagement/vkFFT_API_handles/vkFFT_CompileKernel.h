@@ -330,7 +330,7 @@ static inline VkFFTResult VkFFT_CompileKernel(VkFFTApplication* app, VkFFTAxis* 
 			return VKFFT_ERROR_FAILED_TO_CREATE_PROGRAM;
 		}
 		int numOpts = 0;
-		char* opts[5];
+		const char* opts[5];
 		char archOpt[50];
 #if (CUDA_VERSION >= 11030)
 		sprintf(archOpt, "--gpu-architecture=sm_%" PRIu64 "%" PRIu64 "", app->configuration.computeCapabilityMajor, app->configuration.computeCapabilityMinor);
@@ -345,9 +345,7 @@ static inline VkFFTResult VkFFT_CompileKernel(VkFFTApplication* app, VkFFTAxis* 
 		}
 		//result = nvrtcAddNameExpression(prog, "&consts");
 		//if (result != NVRTC_SUCCESS) printf("1.5 error: %s\n", nvrtcGetErrorString(result));
-		result = nvrtcCompileProgram(prog,  // prog
-			numOpts,     // numOptions
-			(const char* const*)opts); // options
+		result = nvrtcCompileProgram(prog, numOpts, opts);
 
 		if (result != NVRTC_SUCCESS) {
 			printf("nvrtcCompileProgram error: %s\n", nvrtcGetErrorString(result));
@@ -517,16 +515,14 @@ static inline VkFFTResult VkFFT_CompileKernel(VkFFTApplication* app, VkFFTAxis* 
 			}
 		}*/
 		int numOpts = 0;
-		char* opts[5];
+		const char* opts[5];
 		char ffpContractOpt[50];
 		if (app->configuration.quadDoubleDoublePrecision || app->configuration.quadDoubleDoublePrecisionDoubleMemory){
 			sprintf(ffpContractOpt, "-ffp-contract=off");
 			opts[numOpts++] = ffpContractOpt;
 		}
 
-		result = hiprtcCompileProgram(prog,  // prog
-			numOpts,     // numOptions
-			(const char**)opts); // options
+		result = hiprtcCompileProgram(prog, numOpts, opts);
 
 		if (result != HIPRTC_SUCCESS) {
 			printf("hiprtcCompileProgram error: %s\n", hiprtcGetErrorString(result));
